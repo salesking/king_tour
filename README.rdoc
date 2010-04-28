@@ -1,14 +1,22 @@
 = On-Page Tutorials with amberjack
 
-Amberjack is pretty darn usefull for creating on-page tutrials of your website.
+Amberjack is pretty darn usefull for creating on-page tutorials of your website.
 See examples here: http://amberjack2.org/
 
 This repo started with a clone of amberjack2 and got some fixes and enhancements during it's implementation on SalesKing
 
+== Changes
+
+2010.28.04
+* removed colorScheme
+* removed coverOpacity / coverColor => set in css
+* added var declarations in several places
+* added jQuery selector to be used in step title definition => jq_selector: '.aClass'
+* dropped firebug helper
 
 
 == Credits
 
-This is a clone of amberjack2 from http://amberjack2.org/ provided by Arash Yalpani. 
+This is a clone of amberjack2 from http://amberjack2.org provided by Arash Yalpani. 
 I would be glad to commit back to the origin if Arash puts up his sources on Github.
 
