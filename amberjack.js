@@ -1,11 +1,5 @@
 /* Amberjack v2 BETA - April 3, 2010 - Arash Yalpani <arash@yalpani.de> */
 
-// Try to be compatible with other browsers
-// Only use firebug logging if available
-if (typeof console == 'undefined') {
-  console = {};
-  console.log = function() {};
-}
 
 /**
  * Amberjack's main class
@@ -63,14 +57,14 @@ Aj = (function(){
     for (var i = 0; i < children.length; i++) {
       if (!children[i].tagName || children[i].tagName.toLowerCase() != 'div') { continue ; }
 
-      page = {}
+      var page = {}
       page.url = children[i].getAttribute('title');
 
       if (Ajt.urlMatch(page.url)) {
         Aj.__currentStep = stepIndex;
       }
 
-      cn = children[i].childNodes;
+      var cn = children[i].childNodes;
       for (var j = 0; j < cn.length; j++) {
         if (!cn[j].tagName || cn[j].tagName.toLowerCase() != 'div') { continue ; }
 
@@ -89,9 +83,6 @@ Aj = (function(){
   };
 
   function _saveResetValues() {
-    _resetHash.colorScheme        = Aj.colorScheme;
-    _resetHash.coverOpacity       = Aj.coverOpacity;
-    _resetHash.coverColor         = Aj.coverColor;
     _resetHash.textOf             = Aj.textOf;
     _resetHash.textClose          = Aj.textClose;
     _resetHash.textPrev           = Aj.textPrev;
@@ -104,9 +95,6 @@ Aj = (function(){
   };
 
   function _doResetValues() {
-    Aj.colorScheme        = _resetHash.colorScheme;
-    Aj.coverOpacity       = _resetHash.coverOpacity;
-    Aj.coverColor         = _resetHash.coverColor;
     Aj.textOf             = _resetHash.textOf;
     Aj.textClose          = _resetHash.textClose;
     Aj.textPrev           = _resetHash.textPrev;
@@ -129,9 +117,6 @@ Aj = (function(){
     tourId            : null,  // mandatory: if not set, tour will not open
     skinId            : null,  // optional: if not set, skin "model_t" will be used
 
-    colorScheme       : 'yellow',
-    coverOpacity      : 0.5,
-    coverColor        : '#000',
 
     // - set these right before the call to Aj.open()
     textOf            : 'of',  // text of splitter between "2 of 3"
@@ -195,7 +180,6 @@ Aj = (function(){
           Aj._existingOnresize();
         }
       };
-
       // call Aj.onResize initially once
       Aj.onResize();
 
@@ -209,7 +193,6 @@ Aj = (function(){
     },
 
     redrawEverything: function() {
-      Aj.Control.applyColorScheme();
 
       Ajt.$('ajPrev').className = '';
       Ajt.$('ajNext').className = '';
@@ -223,7 +206,7 @@ Aj = (function(){
       var ajc = Aj.__steps[Aj.__currentStep];
       Ajt.$('ajControlBody').childNodes[0].innerHTML = ajc.body;
       Ajt.$('ajCurrentStep').innerHTML = Aj.__currentStep + 1;
-      Aj.Expose.expose(ajc.id, ajc.padding, ajc.position);
+      Aj.Expose.expose(ajc.id, ajc.padding, ajc.position, ajc.jq_selector);
       Aj.Control.attachToExpose(ajc.trbl);
       Aj.Control.ensureVisibility();
     },
@@ -314,7 +297,7 @@ Aj.Control = (function(){
     arrow.style.position    = position;
     arrow.style.top         = topLeft.top + 'px';
     arrow.style.left        = topLeft.left + 'px';
-    arrow.style.background  = 'url(' + Aj.BASE_URL + 'skin/' + Aj.skinId.toLowerCase() + '/arr_' + trbl.charAt(0) + '.' + Aj.colorScheme + '.png)';
+    arrow.style.background  = 'url(' + Aj.BASE_URL + 'skin/' + Aj.skinId.toLowerCase() + '/arr_' + trbl.charAt(0) + '.png)';
   };
 
   return {
@@ -349,23 +332,21 @@ Aj.Control = (function(){
         Ajt.postFetch(Aj.ADD_SCRIPT, 'script');
       };
 
+      var callback;
       if (callback = Aj.__steps[Aj.__currentStep].callback) {
         eval(callback + '()');
       };
 
       Aj.redrawEverything();
     },
-
-    applyColorScheme: function() {
-      Ajt.$('ajControl').className = 'aj' + Aj.colorScheme;
-    },
-
+   
     prev: function() {
       if (Aj.__currentStep == 0) {
         return ;
       };
 
       // we will not change url
+      var callback;
       if (Aj.__steps[Aj.__currentStep].pageUrl == Aj.__steps[Aj.__currentStep - 1].pageUrl) {
         if (callback = Aj.__steps[Aj.__currentStep].callback) {
           eval(callback + '(true)');
@@ -382,9 +363,8 @@ Aj.Control = (function(){
       };
 
       var prevUrl = Aj.__steps[Aj.__currentStep - 1].pageUrl;
-
-      urlSplit = prevUrl.split('?');
-      urlQuery = urlSplit[1] || false;
+      var urlSplit = prevUrl.split('?');
+      var urlQuery = urlSplit[1] || false;
       if (Aj.urlPassTourParams) {
         prevUrl+= (urlQuery ? '&' : '?') + 'tourId=' + Aj.tourId + (Aj.skinId ? '&skinId=' + Aj.skinId + '&fromNext=1' : '');
       };
@@ -396,7 +376,7 @@ Aj.Control = (function(){
       if (Aj.__currentStep == Aj.__steps.length - 1) {
         return ;
       };
-
+      var callback;
       if (Aj.__steps[Aj.__currentStep].pageUrl == Aj.__steps[Aj.__currentStep + 1].pageUrl) {
         if (callback = Aj.__steps[Aj.__currentStep].callback) {
           eval(callback + '(true)');
@@ -414,8 +394,8 @@ Aj.Control = (function(){
 
       var nextUrl = Aj.__steps[Aj.__currentStep + 1].pageUrl;
 
-      urlSplit = nextUrl.split('?');
-      urlQuery = urlSplit[1] || false;
+      var urlSplit = nextUrl.split('?');
+      var urlQuery = urlSplit[1] || false;
       if (Aj.urlPassTourParams) {
         nextUrl+= (urlQuery ? '&' : '?') + 'tourId=' + Aj.tourId + (Aj.skinId ? '&skinId=' + Aj.skinId : '');
       };
@@ -431,7 +411,7 @@ Aj.Control = (function(){
      */
 
     close: function() {
-      e = Ajt.$('Ajc');
+      var e = Ajt.$('Ajc');
       if (e) e.parentNode.removeChild(e);
     },
 
@@ -442,8 +422,6 @@ Aj.Control = (function(){
       var ajcHeight = Ajt.getHeight(ajControl);
       var coords    = Aj.Expose.getCoords();
       var position  = Aj.Expose.getPosition();
-
-      //console.log('h:' + ajcHeight + ' t:' + coords.t + ' b:' + coords.b);
 
       var arrowTop    = 0;
       var arrowLeft   = 0;
@@ -597,9 +575,14 @@ Aj.Expose = (function(){
   var _padding      = 0;
   var _coords       = [];
   var _position     = null;
+  var _jq_selector  = null; // jquery selecotr given MUST return dom el
 
+  /**
+   * calculate coordinates for the help elements
+   * */
   function _calcCoords() {
-    var el = Ajt.$(_id);
+    //
+    var el = _jq_selector ? jQuery(_jq_selector)[0] : Ajt.$(_id);
     var coords = {};
     coords.t = Ajt.getTop(el)     - _padding;
     coords.r = Ajt.getRight(el)   + _padding;
@@ -613,7 +596,7 @@ Aj.Expose = (function(){
 
   function _drawTopCover() {
     if (!(cover = Ajt.$('ajCoverTop'))) {
-      cover                 = document.createElement('div');
+      var cover                 = document.createElement('div');
       cover.id              = 'ajCoverTop';
       cover.className       = 'ajCover';
       if (Aj.mouseCanNavigate) {
@@ -626,8 +609,6 @@ Aj.Expose = (function(){
     cover.style.position  = _position;
     cover.style.top         = '0px';
     cover.style.height      = height + 'px';
-    cover.style.opacity     = Aj.coverOpacity; // change opacity on every function call, so a redrawEverything works correctly
-    cover.style.background  = Aj.coverColor;
   };
 
   function _drawBottomCover() {
@@ -649,8 +630,7 @@ Aj.Expose = (function(){
     };
     cover.style.top         = top + 'px';
     cover.style.position    = _position;
-    cover.style.opacity     = Aj.coverOpacity; // change opacity on every function call, so a redrawEverything works correctly
-    cover.style.background  = Aj.coverColor;
+
   };
 
   function _drawLeftCover() {
@@ -669,8 +649,7 @@ Aj.Expose = (function(){
     cover.style.top         = _coords.t + 'px';
     cover.style.height      = _coords.h + 'px';
     cover.style.width       = width + 'px';
-    cover.style.opacity     = Aj.coverOpacity; // change opacity on every function call, so a redrawEverything works correctly
-    cover.style.background  = Aj.coverColor;
+
   };
 
   function _drawRightCover() {
@@ -689,8 +668,7 @@ Aj.Expose = (function(){
     cover.style.top         = _coords.t + 'px';
     cover.style.height      = _coords.h + 'px';
     cover.style.left        = _coords.r + 'px';
-    cover.style.opacity     = Aj.coverOpacity; // change opacity on every function call, so a redrawEverything works correctly
-    cover.style.background  = Aj.coverColor;
+
   };
 
   function _drawExposeCover() {
@@ -721,8 +699,9 @@ Aj.Expose = (function(){
   }
 
   return {
-    expose: function(id, padding, position) {
+    expose: function(id, padding, position, jq_selector) {
       _id       = id;
+      _jq_selector = jq_selector;
       _padding  = padding;
       _coords   = _calcCoords();
       _position = position || 'absolute';
@@ -782,17 +761,15 @@ Ajt = {
   },
 
   getLeft: function(el) {
-    if (el.offsetParent)
-      return el.offsetLeft + Ajt.getLeft(el.offsetParent);
-
+    if (el.offsetParent){ return el.offsetLeft + Ajt.getLeft(el.offsetParent); }
     return el.offsetLeft;
   },
 
   getTop: function(el) {
-    if (el.offsetParent)
-      return el.offsetTop + Ajt.getTop(el.offsetParent);
-
+    if (el.offsetParent){ return el.offsetTop + Ajt.getTop(el.offsetParent); }
     return el.offsetTop;
+//        if (el.offsetParent){ return $(el).offset().top + Ajt.getTop(el.offsetParent); }
+//    return $(el).offset().top;
   },
 
   getRight: function(el) {
@@ -827,26 +804,6 @@ Ajt = {
   },
 
   /**
-   * Returns FIRST matching element by tagname
-   * @author Arash Yalpani
-   *
-   * @param tagName name of tags to filter
-   * @return first matching dom node or false if none exists
-   *
-   * @example getByTagName('div') => domNode
-   * @example getByTagName('notexistent') => false
-   */
-
-  getByTagName: function(tagName) {
-    var els = document.getElementsByTagName(tagName);
-    if (els.length > 0) {
-      return els[0];
-    };
-
-    return false;
-  },
-
-  /**
    * Returns an array of matching DOM nodes
    *
    * @param tagName name of tags to filter
@@ -858,6 +815,7 @@ Ajt = {
    * @example getElementsByTagNameAndAttr('div', 'class', 'highlight') => [domNode1, domNode2, ...]
    */
    getElementsByTagNameAndAttr: function(tagName, attrName, attrValue, domNode) {
+    var els;
     if (domNode) {
       els = domNode.getElementsByTagName(tagName);
     } else {
@@ -871,7 +829,7 @@ Ajt = {
     var _els = [];
     for (var i = 0; i < els.length; i++) {
       if (attrName == 'class') {
-        classNames = '';
+        var classNames = '';
         if (els[i].getAttribute('class')) {
           classNames = els[i].getAttribute('class');
         } else {
@@ -907,7 +865,7 @@ Ajt = {
     // shortcuts
     var db = document.body;
     var dde = document.documentElement;
-
+    var inner, height;
     if (window.innerHeight && window.scrollMaxY) {
       inner = window.innerHeight + window.scrollMaxY;
     } else if (db.scrollHeight > db.offsetHeight){ // all but Explorer Mac
@@ -917,8 +875,7 @@ Ajt = {
     } else { // Explorer Mac...would also work in Mozilla and Safari
       inner = db.offsetHeight;
     };
-
-    var height;
+   
     if (self.innerHeight) { // all except Explorer
       height = self.innerHeight;
     } else if (dde && dde.clientHeight) { // Explorer 6 Strict Mode
@@ -968,7 +925,7 @@ Ajt = {
     var urlQuery = urlSplit[1];
     var paramsSplit = urlSplit[1].split('&');
     for (var i = 0; i < paramsSplit.length; i++) {
-      paramSplit = paramsSplit[i].split('=');
+      var paramSplit = paramsSplit[i].split('=');
       if (paramSplit[0] == paramName) {
         return paramSplit[1] || false;
       }
@@ -989,6 +946,7 @@ Ajt = {
    */
 
   postFetch: function(url, type, onerror) {
+    var scriptOrStyle;
     if (type === 'script') {
       scriptOrStyle = document.createElement('script');
       scriptOrStyle.type = 'text/javascript';
@@ -1001,17 +959,11 @@ Ajt = {
     };
 
     if (onerror) { scriptOrStyle.onerror = onerror; };
-
-    var head = Ajt.getByTagName('head');
-    if (head) {
-      head.appendChild(scriptOrStyle);
-      return ;
-    };
-
-    Ajt.alert('head tag is missing');
+    // header MUST be present, else js error
+    document.getElementsByTagName('head')[0].appendChild(scriptOrStyle);
+    return ;
   }
 };
-
 
 setTimeout(function(){
   Aj.open(); // call Aj.open() to catch possibly set url params
