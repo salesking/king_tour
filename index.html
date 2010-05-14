@@ -34,7 +34,7 @@
 </head>
 
 <body>
-  <a href="http://github.com/salesking/amberjack"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+  <a href="http://github.com/salesking/amberjack"><img class="fork_badge" style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
 
   <div id="container">
 
@@ -53,11 +53,11 @@
     </div>
 
     <h2>Try it out</h2>
-    <a href="javascript:;" onclick="Aj.onCloseClickStay = true; Aj.tourId = 'defaultTour';Aj.open();">Click here to give it a shot!</a> 
+    <a class="starter" href="javascript:;" onclick="Aj.onCloseClickStay = true; Aj.tourId = 'defaultTour';Aj.open();">Click here to give it a shot!</a> 
     <h2>Dependencies</h2>
     <p>jQuery</p>
     <h2>Authors</h2>
-    <p>Georg Leciejewski (info@salesking.eu)    <br/>    <br/>      </p>
+    <p class="author">Georg Leciejewski (info@salesking.eu)    <br/>    <br/>      </p>
     <h2>Contact</h2>
     <p>SalesKing (info@salesking.eu)    <br/>      </p>
 
@@ -91,8 +91,15 @@
       <p class="title">Download the source</p> 
       <p> Those two buttons allow downloading the project as zip or tar file</p>
     </div> 
-    <div title="el:'.download',padding:2,trbl:'lmb'"> 
-      <p class="title">Form me here</p>
+    <div title="el:'.fork_badge',padding:2,trbl:'lmb'"> 
+      <p class="title">Fork me here</p>
+    </div> 
+    <div title="el:'.starter',padding:2,trbl:'rmb'"> 
+      <p >You just started the tour here</p>
+    </div> 
+    <div title="el:'.author',padding:2,trbl:'rmb'"> 
+      <p >It wasn't just me, my enhancements are base on r Arash Yalpani's work on amberjack2 </p>
+      <p >Thanks, Arash for your work!</p>
     </div> 
     <div title="el:'pre',padding:5,trbl:'tcc'"> 
       <p class="title">This is the command to clone the project, if you are familiar with git</p>
