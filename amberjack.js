@@ -1,6 +1,3 @@
-/* Amberjack v2 BETA - April 3, 2010 - Arash Yalpani <arash@yalpani.de> */
-
-
 /**
  * Amberjack's main class
  * @author Arash Yalpani
@@ -213,7 +210,7 @@ Aj = (function(){
       var ajc = Aj.__steps[ Aj.__currentStep ];
       Ajt.$('ajControlBody').childNodes[0].innerHTML = ajc.body;
       Ajt.$('ajCurrentStep').innerHTML = Aj.__currentStep + 1;
-      Aj.Expose.expose(ajc.element, ajc.padding, ajc.position);
+      Aj.Expose.expose(ajc.el, ajc.padding, ajc.position);
       Aj.Control.attachToExpose(ajc.trbl);
       Aj.Control.ensureVisibility();
     },
