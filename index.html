@@ -4,25 +4,25 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-
-	<title>salesking/amberjack @ GitHub</title>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script> 
+  <!-- JQuery --> 
+	<title>On-Page Tutorials by SalesKing </title>
 	
 	<style type="text/css">
 		body {
   		margin-top: 1.0em;
-  		background-color: #BE3C1E;
-		  font-family: "Helvetica,Arial,FreeSans";
-  		color: #ffffff;
+		  font 12px/1.34em Arial,Helvetica,sans-serif;
+  		color: #696969;
     }
     #container {
       margin: 0 auto;
       width: 700px;
     }
-		h1 { font-size: 3.8em; color: #41c3e1; margin-bottom: 3px; }
+		h1 { font-size: 3.8em; color: #464646; margin-bottom: 3px; }
 		h1 .small { font-size: 0.4em; }
 		h1 a { text-decoration: none }
-		h2 { font-size: 1.5em; color: #41c3e1; }
-    h3 { text-align: center; color: #41c3e1; }
+		h2 { font-size: 1.5em; color: #464646; }
+    h3 { text-align: center; color: #464646; }
     a { color: #41c3e1; }
     .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
     .download { float: right; }
@@ -45,19 +45,21 @@
         <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
     </div>
 
-    <h1><a href="http://github.com/salesking/amberjack">amberjack on-Page Tutorials</a>
+    <h1><a href="http://github.com/salesking/amberjack">Easy on-Page Tutorials</a>
       <span class="small">by <a href="http://github.com/salesking">salesking</a></span></h1>
 
     <div class="description">
-      Create easy on-page tutorials - furhter development of amberjack2
+      Create easy on-page tutorials - further development of amberjack2
     </div>
 
+    <h2>Try it out</h2>
+    <a href="javascript:;" onclick="Aj.onCloseClickStay = true; Aj.tourId = 'defaultTour';Aj.open();">Click here to give it a shot!</a> 
     <h2>Dependencies</h2>
-<p>jQuery</p>
-<h2>Authors</h2>
-<p>Georg Leciejewski (info@salesking.eu)<br/><br/>      </p>
-<h2>Contact</h2>
-<p>SalesKing (info@salesking.eu)<br/>      </p>
+    <p>jQuery</p>
+    <h2>Authors</h2>
+    <p>Georg Leciejewski (info@salesking.eu)    <br/>    <br/>      </p>
+    <h2>Contact</h2>
+    <p>SalesKing (info@salesking.eu)    <br/>      </p>
 
 
     <h2>Download</h2>
@@ -76,6 +78,21 @@
     </div>
 
   </div>
+  
+<!-- Tour Definition --> 
+<div class="ajTourDef" id="defaultTour" style="display:none" title="http://salesking.github.com/amberjack/"> 
+  <div title="http://salesking.github.com/amberjack/"> 
+    <div title="el:'h1',padding:15,trbl:'bcc'"> 
+      <p class="title">This is an example On-Page Tour</p> 
+      <p> Navigate with bubble arrows, space/backpsace, keyboard right/left or mouse click left/right</p>
+    </div> 
+    <div title="el:'.download',padding:15,trbl:'bcc'"> 
+      <p class="title">Download the source</p> 
+      <p> Those two buttons allow downloading the project as zip or tar file</p>
+    </div> 
+
+  </div> 
+</div>   
 
   <script type="text/javascript">
 var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
@@ -86,5 +103,12 @@ try {
 var pageTracker = _gat._getTracker("UA-3330172-1");
 pageTracker._trackPageview();
 } catch(err) {}</script>
+
+<!-- Amberjack Bootstrap --> 
+<script type="text/javascript" src="http://github.com/salesking/amberjack/raw/master/amberjack.js"></script> 
+<script type="text/javascript">
+    Aj.BASE_URL = 'http://github.com/salesking/amberjack/raw/master/';
+</script> 
+
 </body>
 </html>
