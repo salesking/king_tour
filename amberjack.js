@@ -298,7 +298,7 @@ Aj.Control = (function(){
     arrow.style.position    = position;
     arrow.style.top         = topLeft.top + 'px';
     arrow.style.left        = topLeft.left + 'px';
-    arrow.style.background  = 'url(' + Aj.BASE_URL + 'skin/' + Aj.skinId.toLowerCase() + '/arr_' + trbl.charAt(0) + '.png)';
+    arrow.style.background  = 'url(' + Aj.BASE_URL + 'skins/' + Aj.skinId.toLowerCase() + '/arr_' + trbl.charAt(0) + '.png)';
   };
 
   return {
