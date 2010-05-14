@@ -1,11 +1,18 @@
 = On-Page Tutorials with amberjack
 
-Amberjack is pretty darn usefull for creating on-page tutorials of your website.
+Amberjack is pretty darn usefull for creating on-page tutorials for your website.
 See examples here: http://amberjack2.org/
 
-This repo started with a clone of amberjack2 and got some fixes and enhancements during it's implementation on SalesKing
+This repo started with a clone of amberjack2 and got some fixes and enhancements during it's implementation at SalesKing.
 
 == Changes
+
+
+2010.14.05
+* jQuery-fied the whole thing, does not work without jQuery anymore
+* replaced some internal dom handling with jQuery
+* replaced "id"-selector for tour steps with a more general "element" selector now fully dependent on jQuery and its $()=>jQuery() selector
+
 
 2010.28.04
 * removed colorScheme

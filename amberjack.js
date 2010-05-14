@@ -8,37 +8,45 @@
 
 Aj = (function(){
 
-  var _resetHash = {};
-  var _existingOnresize = null; // reference to onresize method of window/document
+  var _resetHash = {},
+  _existingOnresize = null; // reference to onresize method of window/document
 
   /**
-   * Enables keys: escape, left, right, space & return
+   * Enables keys: space, escape, left, right, backspace & return
    * @example _initKeyboard()
    */
   function _initKeyboard() {
-    document.onkeyup = function(e) {
-      var e = window.event || e;
+    document.onkeydown = function(e) {
+      var e = e || window.event;
       e.cancelBubble = true;
-      if (e.stopPropagation) e.stopPropagation();
+      if (e.preventDefault) e.preventDefault(); //ie chokes here
+      if (e.stopPropagation) e.stopPropagation(); 
 
       switch (e.keyCode) {
         case 27: // esc
           Aj.close();break;
+        case 8: // backspace
         case 37: // left
           Aj.Control.prev();break;
         case 13: // return
-        //case 32: // space - needs bugfix since it scrolls the window body
         case 39: // right
           Aj.Control.next();break;
+        case 32: // space - needs bugfix since it scrolls the window body
+          e.returnValue = false;
+          Aj.Control.next();
+          break;
       }
     }
   };
 
+  function _reset_keyboard(){
+    document.onkeydown = null;
+  };
   /**
    * Returns the tourDef DOM element (or false)
    */
   function _getTourDef(tourId) {
-    var tourDefElements = Ajt.getElementsByTagNameAndAttr('div', 'class', 'ajTourDef');
+    var tourDefElements = jQuery('div.ajTourDef');
     for (i = 0; i < tourDefElements.length; i++) {
       if (tourDefElements[i].getAttribute('id') == tourId) {
         return tourDefElements[i];
@@ -108,7 +116,7 @@ Aj = (function(){
 
   return {
     // constants
-    BASE_URL          : 'http://amberjack2.org/src/v2/', // do not forget trailing slash!
+    BASE_URL          : 'http://github.com/salesking/amberjack/raw/master/', // do not forget trailing slash!
 
     // public attributes
 
@@ -168,8 +176,8 @@ Aj = (function(){
       Aj.closeUrl    = tourDef.getAttribute('title') || false;
 
       // get Style, Template and run Aj.Control.open
-      Ajt.postFetch(Aj.BASE_URL + 'skin/' + Aj.skinId.toLowerCase() + '/style.css', 'style');
-      Ajt.postFetch(Aj.BASE_URL + 'skin/' + Aj.skinId.toLowerCase() + '/control.tpl.js', 'script');
+      Ajt.postFetch(Aj.BASE_URL + 'skins/' + Aj.skinId.toLowerCase() + '/style.css', 'style');
+      Ajt.postFetch(Aj.BASE_URL + 'skins/' + Aj.skinId.toLowerCase() + '/control.tpl.js', 'script');
 
       var ref = document.onresize ? document : window;
 
@@ -194,19 +202,18 @@ Aj = (function(){
 
     redrawEverything: function() {
 
-      Ajt.$('ajPrev').className = '';
-      Ajt.$('ajNext').className = '';
+      jQuery('#ajPrev, #ajNext').removeClass();
       if (Aj.__currentStep == 0) {
-        Ajt.$('ajPrev').className = 'disabled';
-      };
+        jQuery('#ajPrev').addClass('disabled');
+      }
       if (Aj.__currentStep == Aj.__steps.length - 1) {
-        Ajt.$('ajNext').className = 'disabled';
-      };
+        jQuery('#ajNext').addClass('disabled');
+      }
 
-      var ajc = Aj.__steps[Aj.__currentStep];
+      var ajc = Aj.__steps[ Aj.__currentStep ];
       Ajt.$('ajControlBody').childNodes[0].innerHTML = ajc.body;
       Ajt.$('ajCurrentStep').innerHTML = Aj.__currentStep + 1;
-      Aj.Expose.expose(ajc.id, ajc.padding, ajc.position, ajc.jq_selector);
+      Aj.Expose.expose(ajc.element, ajc.padding, ajc.position);
       Aj.Control.attachToExpose(ajc.trbl);
       Aj.Control.ensureVisibility();
     },
@@ -218,8 +225,6 @@ Aj = (function(){
      * @example Aj.close()
      */
     close: function() {
-      //Aj.__currentStep = 0;
-
       var ref = document.onresize ? document : window;
       if (Aj._existingOnresize) {
         ref.onresize = Aj._existingOnresize;
@@ -232,10 +237,9 @@ Aj = (function(){
       };
 
       _doResetValues();
+      _reset_keyboard();
       if (Aj.onCloseClickStay) {
-        Aj.Control.close();
-        Aj.Expose.unexpose();
-        e = Ajt.$('ajArrow'); if (e) { document.body.removeChild(e); }
+        jQuery('#Ajc, .ajCover, #ajArrow, #ajExposeCover').remove();
         return null;
       };
 
@@ -403,30 +407,17 @@ Aj.Control = (function(){
       window.location.href = nextUrl;
     },
 
-    /**
-     * Removes Amberjack Control div from DOM
-     * @author Arash Yalpani
-     *
-     * @example Aj.Control.close()
-     */
-
-    close: function() {
-      var e = Ajt.$('Ajc');
-      if (e) e.parentNode.removeChild(e);
-    },
-
     attachToExpose: function(trbl) {
       _trbl = trbl;
-      var ajControl = Ajt.$('ajControl');
-      var ajcWidth  = Ajt.getWidth(ajControl);
-      var ajcHeight = Ajt.getHeight(ajControl);
-      var coords    = Aj.Expose.getCoords();
-      var position  = Aj.Expose.getPosition();
-
-      var arrowTop    = 0;
-      var arrowLeft   = 0;
-      var controlTop  = 0;
-      var controlLeft = 0;
+      var ajControl = Ajt.$('ajControl'),
+      ajcWidth  = Ajt.getWidth(ajControl),
+      ajcHeight = Ajt.getHeight(ajControl),
+      coords    = Aj.Expose.getCoords(),
+      position  = Aj.Expose.getPosition(),
+      arrowTop    = 0,
+      arrowLeft   = 0,
+      controlTop  = 0,
+      controlLeft = 0;
 
       switch (_trbl.charAt(0)) {
       case 't':
@@ -571,19 +562,18 @@ Aj.Control = (function(){
 
 
 Aj.Expose = (function(){
-  var _id           = null;
-  var _padding      = 0;
-  var _coords       = [];
-  var _position     = null;
-  var _jq_selector  = null; // jquery selecotr given MUST return dom el
+  var _element  = null,  // jquery selector MUST return dom el
+  _padding      = 0,
+  _coords       = [],
+  _position     = null;
 
   /**
    * calculate coordinates for the help elements
    * */
   function _calcCoords() {
-    //
-    var el = _jq_selector ? jQuery(_jq_selector)[0] : Ajt.$(_id);
-    var coords = {};
+  // use the first element jQuery finds
+    var el = jQuery(_element)[0],
+    coords = {};
     coords.t = Ajt.getTop(el)     - _padding;
     coords.r = Ajt.getRight(el)   + _padding;
     coords.b = Ajt.getBottom(el)  + _padding;
@@ -596,12 +586,10 @@ Aj.Expose = (function(){
 
   function _drawTopCover() {
     if (!(cover = Ajt.$('ajCoverTop'))) {
-      var cover                 = document.createElement('div');
-      cover.id              = 'ajCoverTop';
-      cover.className       = 'ajCover';
-      if (Aj.mouseCanNavigate) {
-        cover.onclick = Aj.Control.next;
-      };
+      var cover       = document.createElement('div');
+      cover.id        = 'ajCoverTop';
+      cover.className = 'ajCover';
+      if (Aj.mouseCanNavigate) { cover.onclick = Aj.Control.next; };
       document.body.appendChild(cover);
     };
 
@@ -613,15 +601,12 @@ Aj.Expose = (function(){
 
   function _drawBottomCover() {
     if (!(cover = Ajt.$('ajCoverBottom'))) {
-      var cover             = document.createElement('div');
-      cover.id              = 'ajCoverBottom';
-      cover.className       = 'ajCover';
-      if (Aj.mouseCanNavigate) {
-        cover.onclick = Aj.Control.next;
-      };
+      var cover       = document.createElement('div');
+      cover.id        = 'ajCoverBottom';
+      cover.className = 'ajCover';
+      if (Aj.mouseCanNavigate) { cover.onclick = Aj.Control.next;  }
       document.body.appendChild(cover);
-    };
-
+    }
     var top = Math.max(0, _coords.b);
     if (_position == 'fixed') {
       cover.style.height = Math.max(0, Ajt.viewport().height - top) + 'px';
@@ -635,14 +620,12 @@ Aj.Expose = (function(){
 
   function _drawLeftCover() {
     if (!(cover = Ajt.$('ajCoverLeft'))) {
-      var cover             = document.createElement('div');
-      cover.id              = 'ajCoverLeft';
-      cover.className       = 'ajCover';
-      if (Aj.mouseCanNavigate) {
-        cover.onclick = Aj.Control.next;
-      };
+      var cover       = document.createElement('div');
+      cover.id        = 'ajCoverLeft';
+      cover.className = 'ajCover';
+      if (Aj.mouseCanNavigate) { cover.onclick = Aj.Control.next;  }
       document.body.appendChild(cover);
-    };
+    }
 
     var width = Math.max(0, _coords.l);
     cover.style.position    = _position;
@@ -657,9 +640,7 @@ Aj.Expose = (function(){
       var cover             = document.createElement('div');
       cover.id              = 'ajCoverRight';
       cover.className       = 'ajCover';
-      if (Aj.mouseCanNavigate) {
-        cover.onclick = Aj.Control.next;
-      };
+      if (Aj.mouseCanNavigate) { cover.onclick = Aj.Control.next; };
       document.body.appendChild(cover);
     };
 
@@ -673,8 +654,8 @@ Aj.Expose = (function(){
 
   function _drawExposeCover() {
     if (!(cover = Ajt.$('ajExposeCover'))) {
-      var cover             = document.createElement('div');
-      cover.id              = 'ajExposeCover';
+      var cover = document.createElement('div');
+      cover.id  = 'ajExposeCover';
       if (Aj.mouseCanNavigate) {
         cover.onclick = Aj.Control.next;
       };
@@ -699,21 +680,12 @@ Aj.Expose = (function(){
   }
 
   return {
-    expose: function(id, padding, position, jq_selector) {
-      _id       = id;
-      _jq_selector = jq_selector;
+    expose: function(element, padding, position) {
+      _element       = element;
       _padding  = padding;
       _coords   = _calcCoords();
       _position = position || 'absolute';
       _drawCover();
-    },
-
-    unexpose: function() {
-      var coverParts = Ajt.getElementsByTagNameAndAttr('div', 'class', 'ajCover');
-      for (i = 0; i < coverParts.length; i++) {
-        document.body.removeChild(coverParts[i]);
-      };
-      e = Ajt.$('ajExposeCover'); if (e) { document.body.removeChild(Ajt.$('ajExposeCover')); };
     },
 
     refresh: function() {
@@ -804,55 +776,6 @@ Ajt = {
   },
 
   /**
-   * Returns an array of matching DOM nodes
-   *
-   * @param tagName name of tags to filter
-   * @param attrName name of attribute, matching tags must contain
-   * @param attrValue value of attribute, matching tags must contain
-   * @param domNode optional: dom node to start filtering from
-   * @return Array of matching dom nodes
-   *
-   * @example getElementsByTagNameAndAttr('div', 'class', 'highlight') => [domNode1, domNode2, ...]
-   */
-   getElementsByTagNameAndAttr: function(tagName, attrName, attrValue, domNode) {
-    var els;
-    if (domNode) {
-      els = domNode.getElementsByTagName(tagName);
-    } else {
-      els = document.getElementsByTagName(tagName);
-    };
-
-    if (els.length === 0) {
-      return [];
-    };
-
-    var _els = [];
-    for (var i = 0; i < els.length; i++) {
-      if (attrName == 'class') {
-        var classNames = '';
-        if (els[i].getAttribute('class')) {
-          classNames = els[i].getAttribute('class');
-        } else {
-          if (els[i].getAttribute('className')) {
-            classNames = els[i].getAttribute('className');
-          }
-        };
-
-        var reg = new RegExp('(^| )'+ attrValue +'($| )');
-        if (reg.test(classNames)) {
-          _els.push(els[i]);
-        };
-      } else {
-        if (els[i].getAttribute(attrName) == attrValue) {
-          _els.push(els[i]);
-        };
-      };
-    };
-
-    return _els;
-  },
-
-  /**
    * Return height of inner window
    * Copied and modified:
    * http://www.dynamicdrive.com/forums/archive/index.php/t-10373.html
@@ -860,12 +783,11 @@ Ajt = {
    * @example Ajt.getWindowInnerHeight()
    */
   getWindowInnerHeight: function() {
-    var yInner;
-
-    // shortcuts
-    var db = document.body;
-    var dde = document.documentElement;
-    var inner, height;
+      // shortcuts
+    var db = document.body,
+    dde = document.documentElement,
+    inner,
+    height;
     if (window.innerHeight && window.scrollMaxY) {
       inner = window.innerHeight + window.scrollMaxY;
     } else if (db.scrollHeight > db.offsetHeight){ // all but Explorer Mac
