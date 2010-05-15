@@ -1,17 +1,21 @@
 = On-Page Tutorials 
 
 Amberjack is pretty darn usefull for creating on-page tutorials for your website.
-See examples here: http://amberjack2.org/
 
 This repo started with a clone of amberjack2 and got some fixes and enhancements during it's implementation at SalesKing.
 
 == Usage
 
 see example here: http://salesking.github.com/amberjack/
-
+and some more from the original version(be careful since the html markup has changed) here: http://amberjack2.org/
 
 
 == Changes
+
+2010.15.05
+* prevent inserting lazy loaded javascript/css twice into head => postFetch method
+* renamed setting mouseCanNavigate to mouseNav 
+* kicked lots of unneeded ;
 
 
 2010.14.05

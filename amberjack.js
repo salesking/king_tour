@@ -34,11 +34,11 @@ Aj = (function(){
           break;
       }
     }
-  };
+  }
 
   function _reset_keyboard(){
     document.onkeydown = null;
-  };
+  }
   /**
    * Returns the tourDef DOM element (or false)
    */
@@ -52,7 +52,7 @@ Aj = (function(){
 
     Ajt.alert('DIV with CLASS "ajTourDef" and ID "' + tourId + '" is not defined');
     return false;
-  };
+  }
 
   function _transformTourDefToSteps(tourDef) {
     var children = tourDef.childNodes;
@@ -72,9 +72,12 @@ Aj = (function(){
       var cn = children[i].childNodes;
       for (var j = 0; j < cn.length; j++) {
         if (!cn[j].tagName || cn[j].tagName.toLowerCase() != 'div') { continue ; }
-
+        //load the settings from step title
         eval('steps[stepIndex] = {' + cn[j].title + '};');
-
+        // show error when el not given, does not pop up
+//        if(steps[stepIndex].el == 'undefined'){
+//          Ajt.alert('Tour step "' + stepIndex + '" is missing its el definition');
+//        }
         if (Ajt.getUrlParam(location.href, 'fromNext') && Ajt.urlMatch(page.url)) {
           Aj.__currentStep = stepIndex;
         }
@@ -85,7 +88,7 @@ Aj = (function(){
       }
     }
     return steps;
-  };
+  }
 
   function _saveResetValues() {
     _resetHash.textOf             = Aj.textOf;
@@ -94,10 +97,10 @@ Aj = (function(){
     _resetHash.textNext           = Aj.textNext;
     _resetHash.onCloseClickStay   = Aj.onCloseClickStay;
     _resetHash.doCoverBody        = Aj.doCoverBody;
-    _resetHash.mouseCanNavigate   = Aj.mouseCanNavigate;
+    _resetHash.mouseNav   = Aj.mouseNav;
     _resetHash.urlPassTourParams  = Aj.urlPassTourParams;
     _resetHash.currentStep      = 0;
-  };
+  }
 
   function _doResetValues() {
     Aj.textOf             = _resetHash.textOf;
@@ -106,10 +109,10 @@ Aj = (function(){
     Aj.textNext           = _resetHash.textNext;
     Aj.onCloseClickStay   = _resetHash.onCloseClickStay;
     Aj.doCoverBody        = _resetHash.doCoverBody;
-    Aj.mouseCanNavigate   = _resetHash.mouseCanNavigate;
+    Aj.mouseNav   = _resetHash.mouseNav;
     Aj.urlPassTourParams  = _resetHash.urlPassTourParams;
     Aj.__currentStep      = _resetHash.currentStep;
-  };
+  }
 
   return {
     // constants
@@ -131,7 +134,7 @@ Aj = (function(){
 
     onCloseClickStay  : false, // set this to 'true', if you want the close button to close tour but remain on current page
     doCoverBody       : false, // set this to 'true', if a click on the body cover should force it to close
-    mouseCanNavigate  : true,  // forward / backward on mouse click
+    mouseNav          : true,  // forward / backward on mouse click
     urlPassTourParams : true,  // set this to false, if you have hard coded the tourId and skinId in your tour
                                //     template. the tourId and skindId params will not get passed on prev/next button click
 
@@ -227,22 +230,22 @@ Aj = (function(){
         ref.onresize = Aj._existingOnresize;
       } else {
         ref.onresize = null;
-      };
+      }
 
-      if (Aj.mouseCanNavigate) {
+      if (Aj.mouseNav) {
         document.body.oncontextmenu = null;
-      };
+      }
 
       _doResetValues();
       _reset_keyboard();
       if (Aj.onCloseClickStay) {
         jQuery('#Ajc, .ajCover, #ajArrow, #ajExposeCover').remove();
         return null;
-      };
+      }
 
       if (Aj.closeUrl) {
         window.location.href = Aj.closeUrl;
-      };
+      }
       return null;
     }
   }
@@ -258,16 +261,16 @@ Aj.Control = (function(){
 
   function _fillTemplate(tplHtml) {
     var _tplHtml = null;
-    _tplHtml =  tplHtml.replace(/{skinId}/,        Aj.skinId);
-    _tplHtml = _tplHtml.replace(/{textOf}/,        Aj.textOf);
-    _tplHtml = _tplHtml.replace(/{textClose}/,     Aj.textClose);
-    _tplHtml = _tplHtml.replace(/{textPrev}/,      Aj.textPrev);
-    _tplHtml = _tplHtml.replace(/{textNext}/,      Aj.textNext);
-    _tplHtml = _tplHtml.replace(/{currentStep}/,   Aj.__currentStep + 1);
-    _tplHtml = _tplHtml.replace(/{stepCount}/,     Aj.__steps.length);
-    _tplHtml = _tplHtml.replace(/{body}/,          Aj.__steps[Aj.__currentStep].body);
+    _tplHtml =  tplHtml.replace(/{skinId}/,        Aj.skinId)
+      .replace(/{textOf}/,        Aj.textOf)
+      .replace(/{textClose}/,     Aj.textClose)
+      .replace(/{textPrev}/,      Aj.textPrev)
+      .replace(/{textNext}/,      Aj.textNext)
+      .replace(/{currentStep}/,   Aj.__currentStep + 1)
+      .replace(/{stepCount}/,     Aj.__steps.length)
+      .replace(/{body}/,          Aj.__steps[Aj.__currentStep].body);
     return _tplHtml;
-  };
+  }
 
   function _domInsert(tplHtml) {
     var e = Ajt.$('Ajc');
@@ -277,7 +280,7 @@ Aj.Control = (function(){
       document.body.appendChild(div);
     }
     div.innerHTML = tplHtml;
-  };
+  }
 
   function _setCoords(coords, position) {
     var el = Ajt.$('ajControl');
@@ -286,20 +289,20 @@ Aj.Control = (function(){
     el.style.bottom   = coords.bottom   || 'auto';
     el.style.left     = coords.left     || 'auto';
     el.style.position = position        || 'static';
-  };
+  }
 
   function _drawArrow(topLeft, position, trbl) {
     if (!(arrow = Ajt.$('ajArrow'))) {
       var arrow               = document.createElement('div');
       arrow.id                = 'ajArrow';
       document.body.appendChild(arrow);
-    };
+    }
 
     arrow.style.position    = position;
     arrow.style.top         = topLeft.top + 'px';
     arrow.style.left        = topLeft.left + 'px';
     arrow.style.background  = 'url(' + Aj.BASE_URL + 'skins/' + Aj.skinId.toLowerCase() + '/arr_' + trbl.charAt(0) + '.png)';
-  };
+  }
 
   return {
     /**
@@ -319,24 +322,24 @@ Aj.Control = (function(){
       // No URL was set AND no click-close-action was configured:
       if (!Aj.closeUrl && !Aj.onCloseClickStay) {
         Ajt.$('ajClose').style.display = 'none';
-      };
+      }
 
       // post fetch a CSS file you can define by setting Aj.ADD_STYLE
       // right before the call to Aj.open();
       if (Aj.ADD_STYLE) {
         Ajt.postFetch(Aj.ADD_STYLE, 'style');
-      };
+      }
 
       // post fetch a script you can define by setting Aj.ADD_SCRIPT
       // right before the call to Aj.open();
       if (Aj.ADD_SCRIPT) {
         Ajt.postFetch(Aj.ADD_SCRIPT, 'script');
-      };
+      }
 
       var callback;
       if (callback = Aj.__steps[Aj.__currentStep].callback) {
         eval(callback + '()');
-      };
+      }
 
       Aj.redrawEverything();
     },
@@ -344,31 +347,31 @@ Aj.Control = (function(){
     prev: function() {
       if (Aj.__currentStep == 0) {
         return ;
-      };
+      }
 
       // we will not change url
       var callback;
       if (Aj.__steps[Aj.__currentStep].pageUrl == Aj.__steps[Aj.__currentStep - 1].pageUrl) {
         if (callback = Aj.__steps[Aj.__currentStep].callback) {
           eval(callback + '(true)');
-        };
+        }
 
         Aj.__currentStep--;
 
         if (callback = Aj.__steps[Aj.__currentStep].callback) {
           eval(callback + '()');
-        };
+        }
 
         Aj.redrawEverything();
         return ;
-      };
+      }
 
       var prevUrl = Aj.__steps[Aj.__currentStep - 1].pageUrl;
       var urlSplit = prevUrl.split('?');
       var urlQuery = urlSplit[1] || false;
       if (Aj.urlPassTourParams) {
         prevUrl+= (urlQuery ? '&' : '?') + 'tourId=' + Aj.tourId + (Aj.skinId ? '&skinId=' + Aj.skinId + '&fromNext=1' : '');
-      };
+      }
 
       window.location.href = prevUrl;
     },
@@ -376,22 +379,21 @@ Aj.Control = (function(){
     next: function() {
       if (Aj.__currentStep == Aj.__steps.length - 1) {
         return ;
-      };
+      }
       var callback;
       if (Aj.__steps[Aj.__currentStep].pageUrl == Aj.__steps[Aj.__currentStep + 1].pageUrl) {
         if (callback = Aj.__steps[Aj.__currentStep].callback) {
           eval(callback + '(true)');
-        };
+        }
 
         Aj.__currentStep++;
 
         if (callback = Aj.__steps[Aj.__currentStep].callback) {
           eval(callback + '()');
-        };
-
+        }
         Aj.redrawEverything();
         return ;
-      };
+      }
 
       var nextUrl = Aj.__steps[Aj.__currentStep + 1].pageUrl;
 
@@ -399,7 +401,7 @@ Aj.Control = (function(){
       var urlQuery = urlSplit[1] || false;
       if (Aj.urlPassTourParams) {
         nextUrl+= (urlQuery ? '&' : '?') + 'tourId=' + Aj.tourId + (Aj.skinId ? '&skinId=' + Aj.skinId : '');
-      };
+      }
 
       window.location.href = nextUrl;
     },
@@ -433,7 +435,7 @@ Aj.Control = (function(){
         arrowLeft   = coords.r + 1;
         controlLeft = coords.r + 15;
         break;
-      };
+      }
 
       switch (_trbl.charAt(1)) {
       case 't':
@@ -441,60 +443,60 @@ Aj.Control = (function(){
         controlTop  = coords.t;
         if (_trbl.charAt(2) && _trbl.charAt(2) == 't') {
           controlTop  = coords.t - ajcHeight + 30;
-        };
+        }
         if (_trbl.charAt(2) && _trbl.charAt(2) == 'm') {
           controlTop  = coords.t - ajcHeight / 2 + 15;
-        };
+        }
         break;
       case 'm':
         arrowTop   = coords.t + coords.h / 2 - 15;
         controlTop = coords.t + coords.h / 2 - ajcHeight / 2;
         if (_trbl.charAt(2) && _trbl.charAt(2) == 't') {
           controlTop  = arrowTop - ajcHeight + 30;
-        };
+        }
         if (_trbl.charAt(2) && _trbl.charAt(2) == 'b') {
           controlTop  = arrowTop;
-        };
+        }
         break;
       case 'b':
         arrowTop    = coords.b - 30;
         controlTop  = coords.b - ajcHeight;
         if (_trbl.charAt(2) && _trbl.charAt(2) == 'b') {
           controlTop  = coords.b - 30;
-        };
+        }
         if (_trbl.charAt(2) && _trbl.charAt(2) == 'm') {
           controlTop  = coords.b - ajcHeight / 2 - 15;
-        };
+        }
         break;
       case 'l':
         arrowLeft   = coords.l;
         controlLeft = coords.l;
         if (_trbl.charAt(2) && _trbl.charAt(2) == 'l') {
           controlLeft = coords.l - ajcWidth + 30;
-        };
+        }
         if (_trbl.charAt(2) && _trbl.charAt(2) == 'c') {
           controlLeft = coords.l - ajcWidth / 2 + 15;
-        };
+        }
         break;
       case 'c':
         arrowLeft   = coords.l + coords.w / 2 - 15;
         controlLeft = coords.l + coords.w / 2 - ajcWidth / 2;
         if (_trbl.charAt(2) && _trbl.charAt(2) == 'l') {
           controlLeft = arrowLeft - ajcWidth + 30;
-        };
+        }
         if (_trbl.charAt(2) && _trbl.charAt(2) == 'r') {
           controlLeft = arrowLeft;
-        };
+        }
         break;
       case 'r':
         arrowLeft   = coords.r - 30;
         controlLeft = coords.r - ajcWidth;
         if (_trbl.charAt(2) && _trbl.charAt(2) == 'r') {
           controlLeft = coords.r - 30;
-        };
+        }
         if (_trbl.charAt(2) && _trbl.charAt(2) == 'c') {
           controlLeft = coords.r - ajcWidth / 2 - 15;
-        };
+        }
         break;
       }
 
@@ -508,7 +510,7 @@ Aj.Control = (function(){
     ensureVisibility: function() {
       if ('fixed' == Aj.__steps[Aj.__currentStep].position) {
         return ;
-      };
+      }
 
       var ajControl   = Ajt.$('ajControl');
       var ajcTop      = Ajt.getTop(ajControl);
@@ -528,13 +530,13 @@ Aj.Control = (function(){
       // everything is fitting, no need to jump
       if (superTop >= vpScrollTop && superBottom <= vpScrollTop + vpHeight) {
         return ;
-      };
+      }
 
       // Control heigher than viewport?
       if (ajcHeight >= vpHeight) {
         window.scroll(0, ajcTop - 20); // align to control top
         return ;
-      };
+      }
 
       var scrollTo = 0;
       // trbl = b
@@ -542,7 +544,7 @@ Aj.Control = (function(){
         scrollTo = superBottom - vpHeight + 20;
       } else {
         scrollTo = superTop - 20;
-      };
+      }
 
       window.scroll(0, Math.max(maxScrollTop, Math.min(minScrollTop, scrollTo)));
     },
@@ -550,7 +552,7 @@ Aj.Control = (function(){
     refresh: function() {
       if (!_trbl) {
         return ;
-      };
+      }
 
       Aj.Control.attachToExpose(_trbl);
     }
@@ -579,29 +581,29 @@ Aj.Expose = (function(){
     coords.h = Ajt.getHeight(el)  + _padding * 2;
 
     return coords;
-  };
+  }
 
   function _drawTopCover() {
     if (!(cover = Ajt.$('ajCoverTop'))) {
       var cover       = document.createElement('div');
       cover.id        = 'ajCoverTop';
       cover.className = 'ajCover';
-      if (Aj.mouseCanNavigate) { cover.onclick = Aj.Control.next; };
+      if (Aj.mouseNav) { cover.onclick = Aj.Control.next; };
       document.body.appendChild(cover);
-    };
+    }
 
     var height = Math.max(0, _coords.t);
     cover.style.position  = _position;
     cover.style.top         = '0px';
     cover.style.height      = height + 'px';
-  };
+  }
 
   function _drawBottomCover() {
     if (!(cover = Ajt.$('ajCoverBottom'))) {
       var cover       = document.createElement('div');
       cover.id        = 'ajCoverBottom';
       cover.className = 'ajCover';
-      if (Aj.mouseCanNavigate) { cover.onclick = Aj.Control.next;  }
+      if (Aj.mouseNav) { cover.onclick = Aj.Control.next;  }
       document.body.appendChild(cover);
     }
     var top = Math.max(0, _coords.b);
@@ -609,18 +611,18 @@ Aj.Expose = (function(){
       cover.style.height = Math.max(0, Ajt.viewport().height - top) + 'px';
     } else {
       cover.style.height = (Ajt.getWindowInnerHeight() - top) + 'px';
-    };
+    }
     cover.style.top         = top + 'px';
     cover.style.position    = _position;
 
-  };
+  }
 
   function _drawLeftCover() {
     if (!(cover = Ajt.$('ajCoverLeft'))) {
       var cover       = document.createElement('div');
       cover.id        = 'ajCoverLeft';
       cover.className = 'ajCover';
-      if (Aj.mouseCanNavigate) { cover.onclick = Aj.Control.next;  }
+      if (Aj.mouseNav) { cover.onclick = Aj.Control.next;  }
       document.body.appendChild(cover);
     }
 
@@ -630,16 +632,16 @@ Aj.Expose = (function(){
     cover.style.height      = _coords.h + 'px';
     cover.style.width       = width + 'px';
 
-  };
+  }
 
   function _drawRightCover() {
     if (!(cover = Ajt.$('ajCoverRight'))) {
       var cover             = document.createElement('div');
       cover.id              = 'ajCoverRight';
       cover.className       = 'ajCover';
-      if (Aj.mouseCanNavigate) { cover.onclick = Aj.Control.next; };
+      if (Aj.mouseNav) { cover.onclick = Aj.Control.next; }
       document.body.appendChild(cover);
-    };
+    }
 
     var width = Math.max(0, _coords.r);
     cover.style.position    = _position;
@@ -647,17 +649,17 @@ Aj.Expose = (function(){
     cover.style.height      = _coords.h + 'px';
     cover.style.left        = _coords.r + 'px';
 
-  };
+  }
 
   function _drawExposeCover() {
     if (!(cover = Ajt.$('ajExposeCover'))) {
       var cover = document.createElement('div');
       cover.id  = 'ajExposeCover';
-      if (Aj.mouseCanNavigate) {
+      if (Aj.mouseNav) {
         cover.onclick = Aj.Control.next;
-      };
+      }
       document.body.appendChild(cover);
-    };
+    }
     cover.style.position    = _position;
     cover.style.top         = _coords.t + 'px';
     cover.style.left        = _coords.l + 'px';
@@ -666,9 +668,9 @@ Aj.Expose = (function(){
   }
 
   function _drawCover() {
-    if (Aj.mouseCanNavigate) {
+    if (Aj.mouseNav) {
       document.body.oncontextmenu = function(){Aj.Control.prev();return false};
-    };
+    }
     _drawTopCover();
     _drawBottomCover();
     _drawLeftCover();
@@ -763,13 +765,13 @@ Ajt = {
       y = document.documentElement.scrollTop;
     } else if (document.body) {
       y = document.body.scrollTop;
-    };
+    }
 
     return {
       scrollTop:  y,
       width:      e[a+'Width'],
       height:     e[a+'Height']
-    };
+    }
   },
 
   /**
@@ -793,7 +795,7 @@ Ajt = {
       inner = dde.scrollHeight;
     } else { // Explorer Mac...would also work in Mozilla and Safari
       inner = db.offsetHeight;
-    };
+    }
    
     if (self.innerHeight) { // all except Explorer
       height = self.innerHeight;
@@ -801,7 +803,7 @@ Ajt = {
       height = dde.clientHeight;
     } else if (document.body) { // other Explorers
       height = db.clientHeight;
-    };
+    }
 
     // for small pages with total height less then height of the viewport
     return (inner >= height) ? inner : height;
@@ -839,7 +841,7 @@ Ajt = {
     var urlSplit = url.split('?');
     if (!urlSplit[1]) { // no query
       return false;
-    };
+    }
 
     var urlQuery = urlSplit[1];
     var paramsSplit = urlSplit[1].split('&');
@@ -848,7 +850,7 @@ Ajt = {
       if (paramSplit[0] == paramName) {
         return paramSplit[1] || false;
       }
-    };
+    }
 
     return false;
   },
@@ -861,25 +863,33 @@ Ajt = {
    * @param onerror Optional: callback handler if loading did not work
    *
    * @example loadScript('http://localhost/js/dummy.js', function(){alert('could not load')})
-   * Note that a HEAD tag needs to be existent in the current document
+   *
+   * Note that a HEAD tag needs to be existent in the current document and head
+   * tags are only inserted once per url
    */
 
   postFetch: function(url, type, onerror) {
-    var scriptOrStyle;
-    if (type === 'script') {
-      scriptOrStyle = document.createElement('script');
-      scriptOrStyle.type = 'text/javascript';
-      scriptOrStyle.src  = url;
-    } else {
-      scriptOrStyle = document.createElement('link');
-      scriptOrStyle.type = 'text/css';
-      scriptOrStyle.rel  = 'stylesheet';
-      scriptOrStyle.href = url;
-    };
+    var scriptOrStyle = null;
 
-    if (onerror) { scriptOrStyle.onerror = onerror; };
-    // header MUST be present, else js error
-    document.getElementsByTagName('head')[0].appendChild(scriptOrStyle);
+    if (type === 'script') {
+      if ( 0 == jQuery('script[src='+ url +']').length ){
+        scriptOrStyle = document.createElement('script');
+        scriptOrStyle.type = 'text/javascript';
+        scriptOrStyle.src  = url;
+      }
+    } else {
+      if ( 0 == jQuery('link[href='+ url +']').length ){
+        scriptOrStyle = document.createElement('link');
+        scriptOrStyle.type = 'text/css';
+        scriptOrStyle.rel  = 'stylesheet';
+        scriptOrStyle.href = url;
+      }
+    }
+
+    if (onerror) { scriptOrStyle.onerror = onerror; }
+    if(scriptOrStyle != null){
+      document.getElementsByTagName('head')[0].appendChild(scriptOrStyle); // head MUST be present, else js error
+    }
     return ;
   }
 };
