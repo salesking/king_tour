@@ -20,12 +20,15 @@ Aj = (function(){
       if (e.stopPropagation) e.stopPropagation(); 
 
       switch (e.keyCode) {
+        case 35: // quit
         case 27: // esc
           Aj.close();break;
         case 8: // backspace
+        case 40: // down
         case 37: // left
           Aj.Control.prev();break;
         case 13: // return
+        case 38: // up
         case 39: // right
           Aj.Control.next();break;
         case 32: // space - needs bugfix since it scrolls the window body
@@ -54,32 +57,37 @@ Aj = (function(){
     return false;
   }
 
+  /**
+   * read in tour definition html and set steps
+   */
   function _transformTourDefToSteps(tourDef) {
-    var children = tourDef.childNodes;
-    var steps = [];
-    var stepIndex = 0;
-
+    var children = tourDef.childNodes,
+    steps = [],
+    stepIndex = 0,
+    stepSet = false;
+    //collect top most url definitions
     for (var i = 0; i < children.length; i++) {
       if (!children[i].tagName || children[i].tagName.toLowerCase() != 'div') { continue ; }
 
       var page = {}
       page.url = children[i].getAttribute('title');
-
-      if (Ajt.urlMatch(page.url)) {
+      //only match tour url once, if a tour goes over multiple pages and has the
+      //same url set twice(f.ex. return back to home page) the url param tourStep
+      //MUST be set and overrides this setting
+      if (Ajt.urlMatch(page.url) && !stepSet) {
         Aj.__currentStep = stepIndex;
+        stepSet = true
       }
-
+      //insert tour steps under this url
       var cn = children[i].childNodes;
       for (var j = 0; j < cn.length; j++) {
         if (!cn[j].tagName || cn[j].tagName.toLowerCase() != 'div') { continue ; }
         //load the settings from step title
         eval('steps[stepIndex] = {' + cn[j].title + '};');
-        // show error when el not given, does not pop up
-//        if(steps[stepIndex].el == 'undefined'){
-//          Ajt.alert('Tour step "' + stepIndex + '" is missing its el definition');
-//        }
-        if (Ajt.getUrlParam(location.href, 'fromNext') && Ajt.urlMatch(page.url)) {
-          Aj.__currentStep = stepIndex;
+
+        //set given step from url param important for interpage tours
+        if (Ajt.getUrlParam(location.href, 'tourStep') && Ajt.urlMatch(page.url)) {
+          Aj.__currentStep = parseInt(Ajt.getUrlParam(location.href, 'tourStep')); //implicit conversion to int
         }
 
         steps[stepIndex].body = cn[j].innerHTML;
@@ -137,7 +145,8 @@ Aj = (function(){
     mouseNav          : true,  // forward / backward on mouse click
     urlPassTourParams : true,  // set this to false, if you have hard coded the tourId and skinId in your tour
                                //     template. the tourId and skindId params will not get passed on prev/next button click
-
+    openCallback : null,
+    closeCallback : null,
     // protected attributes - don't touch (used by other Aj.* classes)
     __steps             : [],
     __currentStep       : null,
@@ -190,8 +199,8 @@ Aj = (function(){
       };
       // call Aj.onResize initially once
       Aj.onResize();
-
       _initKeyboard();
+      if (typeof Aj.openCallback == 'function') { Aj.openCallback(Aj); }
     },
 
     onResize: function() {
@@ -236,16 +245,20 @@ Aj = (function(){
         document.body.oncontextmenu = null;
       }
 
+      if (typeof Aj.closeCallback == 'function') {  Aj.closeCallback(Aj); }
       _doResetValues();
       _reset_keyboard();
+      //kick all markup
+      jQuery('#Ajc, .ajCover, #ajArrow, #ajExposeCover').remove();
+      //stay in here
       if (Aj.onCloseClickStay) {
-        jQuery('#Ajc, .ajCover, #ajArrow, #ajExposeCover').remove();
         return null;
-      }
-
+      }     
+      //go back to the closeUrl
       if (Aj.closeUrl) {
         window.location.href = Aj.closeUrl;
       }
+     
       return null;
     }
   }
@@ -366,11 +379,12 @@ Aj.Control = (function(){
         return ;
       }
 
-      var prevUrl = Aj.__steps[Aj.__currentStep - 1].pageUrl;
-      var urlSplit = prevUrl.split('?');
-      var urlQuery = urlSplit[1] || false;
+      var prevStep = Aj.__currentStep - 1,
+          prevUrl = Aj.__steps[prevStep].pageUrl,
+          urlSplit = prevUrl.split('?'),
+          urlQuery = urlSplit[1] || false;
       if (Aj.urlPassTourParams) {
-        prevUrl+= (urlQuery ? '&' : '?') + 'tourId=' + Aj.tourId + (Aj.skinId ? '&skinId=' + Aj.skinId + '&fromNext=1' : '');
+        prevUrl+= (urlQuery ? '&' : '?') + 'tourId=' + Aj.tourId + '&tourStep=' + prevStep + (Aj.skinId ? '&skinId=' + Aj.skinId : '');
       }
 
       window.location.href = prevUrl;
@@ -381,6 +395,7 @@ Aj.Control = (function(){
         return ;
       }
       var callback;
+      //stay on the same page
       if (Aj.__steps[Aj.__currentStep].pageUrl == Aj.__steps[Aj.__currentStep + 1].pageUrl) {
         if (callback = Aj.__steps[Aj.__currentStep].callback) {
           eval(callback + '(true)');
@@ -394,13 +409,13 @@ Aj.Control = (function(){
         Aj.redrawEverything();
         return ;
       }
-
-      var nextUrl = Aj.__steps[Aj.__currentStep + 1].pageUrl;
-
-      var urlSplit = nextUrl.split('?');
-      var urlQuery = urlSplit[1] || false;
+      //construct next link
+      var nextStep = Aj.__currentStep + 1,
+          nextUrl = Aj.__steps[nextStep].pageUrl,
+          urlSplit = nextUrl.split('?'),
+          urlQuery = urlSplit[1] || false;
       if (Aj.urlPassTourParams) {
-        nextUrl+= (urlQuery ? '&' : '?') + 'tourId=' + Aj.tourId + (Aj.skinId ? '&skinId=' + Aj.skinId : '');
+        nextUrl+= (urlQuery ? '&' : '?') + 'tourId=' + Aj.tourId + '&tourStep=' + nextStep + (Aj.skinId ? '&skinId=' + Aj.skinId : '');
       }
 
       window.location.href = nextUrl;
@@ -810,18 +825,18 @@ Ajt = {
   },
 
   /**
-   * Checks if passed href is *included* in current location's href
+   * Checks if passed href(String) is *included* in current location's href
    *
    * @param href URL to be matched against
    *
-   * @example Ajt.urlMatch('http://mysite.com/domains/')
+   * @example
+   *  Ajt.urlMatch('http://mysite.com/domains/')
+   *  Ajt.urlMatch('/domains')
    */
   urlMatch: function(href) {
-    return (
-      location.href == href                   ||
-      location.href.indexOf(href + '&') != -1 ||
-      location.href.indexOf(href + '?') != -1
-    );
+    var re = new RegExp(''+href+'', "g");
+    return re.test(location.href) > 0;
+
   },
 
 

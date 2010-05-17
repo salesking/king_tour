@@ -1,16 +1,29 @@
 = On-Page Tutorials 
 
-Amberjack is pretty darn usefull for creating on-page tutorials for your website.
+You can make screenshoots, movies or write a manual for your web app .. OR you create an on-page tutorial
 
-This repo started with a clone of amberjack2 and got some fixes and enhancements during it's implementation at SalesKing.
+On-Page tutorials, as the name suggests, live directly in your app and can serve as:
+
+* Getting started tour
+* Help
+* Documentation
+* Show-case
+
+
 
 == Usage
 
-see example here: http://salesking.github.com/amberjack/
-and some more from the original version(be careful since the html markup has changed) here: http://amberjack2.org/
+See example here: http://salesking.github.com/amberjack/
+and some more from the original version(be careful since the tour definition markup has changed) here: http://amberjack2.org/
 
 
 == Changes
+
+2010.17.05
+* added open/close callbacks 
+* added navigation keys: arrow upd/down, spacebar, quit
+* set tourStep in links for interpage tours(no more fromNext).
+* each tour step can now be referenced directly with an url
 
 2010.15.05
 * prevent inserting lazy loaded javascript/css twice into head => postFetch method
@@ -34,6 +47,7 @@ and some more from the original version(be careful since the html markup has cha
 
 == Credits
 
-This is a clone of amberjack2 from http://amberjack2.org provided by Arash Yalpani. 
+This repo started with a clone of amberjack2 and got some fixes and enhancements during it's implementation at SalesKing.
+amberjack was originally developed by Arash Yalpani. 
 I would be glad to commit back to the origin if Arash puts up his sources on Github.
 
