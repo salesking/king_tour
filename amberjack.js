@@ -125,16 +125,14 @@ Aj = (function(){
   return {
     // constants
     BASE_URL          : 'http://github.com/salesking/amberjack/raw/master/', // do not forget trailing slash!
-
     // public attributes
-
     // - set these through url (...&tourId=MyTour&skinId=Safari...)
     // - OR right before the call to Aj.open()
     tourId            : null,  // mandatory: if not set, tour will not open
     skinId            : null,  // optional: if not set, skin "model_t" will be used
 
-
-    // - set these right before the call to Aj.open()
+    // Options - set these right before the call to Aj.open()
+    template          : null,   //html snippet to be used as template for popup bubbles
     textOf            : 'of',  // text of splitter between "2 of 3"
     textClose         : 'x',   // text of close button
     textPrev          : '',    // text of previous button (i.e. &laquo;)
@@ -145,8 +143,8 @@ Aj = (function(){
     mouseNav          : true,  // forward / backward on mouse click
     urlPassTourParams : true,  // set this to false, if you have hard coded the tourId and skinId in your tour
                                //     template. the tourId and skindId params will not get passed on prev/next button click
-    openCallback : null,
-    closeCallback : null,
+    openCallback : null,      // callback to be executed on open
+    closeCallback : null,     // callback to be executed on close
     // protected attributes - don't touch (used by other Aj.* classes)
     __steps             : [],
     __currentStep       : null,
@@ -184,12 +182,12 @@ Aj = (function(){
       // set Aj.closeUrl
       Aj.closeUrl    = tourDef.getAttribute('title') || false;
 
-      // get Style, Template and run Aj.Control.open
+      // get Style
       Ajt.postFetch(Aj.BASE_URL + 'skins/' + Aj.skinId.toLowerCase() + '/style.css', 'style');
-      Ajt.postFetch(Aj.BASE_URL + 'skins/' + Aj.skinId.toLowerCase() + '/control.tpl.js', 'script');
-
+      // trigger open control bubble
+      Aj.Control.open();
+      // mix Aj.onresize into existing onresize function, so wwe can reset it later
       var ref = document.onresize ? document : window;
-
       Aj._existingOnresize = ref.onresize;
       ref.onresize = function() {
         Aj.onResize();
@@ -200,6 +198,7 @@ Aj = (function(){
       // call Aj.onResize initially once
       Aj.onResize();
       _initKeyboard();
+      //run a given open callback
       if (typeof Aj.openCallback == 'function') { Aj.openCallback(Aj); }
     },
 
@@ -210,7 +209,7 @@ Aj = (function(){
     },
 
     redrawEverything: function() {
-
+      //set prev/next class for buttons
       jQuery('#ajPrev, #ajNext').removeClass();
       if (Aj.__currentStep == 0) {
         jQuery('#ajPrev').addClass('disabled');
@@ -220,8 +219,10 @@ Aj = (function(){
       }
 
       var ajc = Aj.__steps[ Aj.__currentStep ];
+      // set bubble content to current step content
       Ajt.$('ajControlBody').childNodes[0].innerHTML = ajc.body;
-      Ajt.$('ajCurrentStep').innerHTML = Aj.__currentStep + 1;
+      //set current step number
+      jQuery('#ajCurrentStep').text( Aj.__currentStep + 1 );
       Aj.Expose.expose(ajc.el, ajc.padding, ajc.position);
       Aj.Control.attachToExpose(ajc.trbl);
       Aj.Control.ensureVisibility();
@@ -234,31 +235,21 @@ Aj = (function(){
      * @example Aj.close()
      */
     close: function() {
+      // reset resize handler
       var ref = document.onresize ? document : window;
-      if (Aj._existingOnresize) {
-        ref.onresize = Aj._existingOnresize;
-      } else {
-        ref.onresize = null;
-      }
-
-      if (Aj.mouseNav) {
-        document.body.oncontextmenu = null;
-      }
-
+      ref.onresize = Aj._existingOnresize ? Aj._existingOnresize : null;
+      //reset mouse contextmenu
+      if (Aj.mouseNav) {  document.body.oncontextmenu = null; }
+      // execute close Callback if present
       if (typeof Aj.closeCallback == 'function') {  Aj.closeCallback(Aj); }
       _doResetValues();
       _reset_keyboard();
       //kick all markup
       jQuery('#Ajc, .ajCover, #ajArrow, #ajExposeCover').remove();
       //stay in here
-      if (Aj.onCloseClickStay) {
-        return null;
-      }     
-      //go back to the closeUrl
-      if (Aj.closeUrl) {
-        window.location.href = Aj.closeUrl;
-      }
-     
+      if (Aj.onCloseClickStay) {  return null; }     
+      //go to the closeUrl if present
+      if (Aj.closeUrl) {  window.location.href = Aj.closeUrl;  }     
       return null;
     }
   }
@@ -272,9 +263,11 @@ Aj = (function(){
 Aj.Control = (function(){
   var _trbl    = null;
 
-  function _fillTemplate(tplHtml) {
-    var _tplHtml = null;
-    _tplHtml =  tplHtml.replace(/{skinId}/,        Aj.skinId)
+  function _fillTemplate() {
+    var tpl_parsed = null,
+        // use given or default template
+        tpl_raw = Aj.template ? Aj.template : Aj.Control.defaultTemplate;
+    tpl_parsed = tpl_raw.replace(/{skinId}/, Aj.skinId)
       .replace(/{textOf}/,        Aj.textOf)
       .replace(/{textClose}/,     Aj.textClose)
       .replace(/{textPrev}/,      Aj.textPrev)
@@ -282,17 +275,7 @@ Aj.Control = (function(){
       .replace(/{currentStep}/,   Aj.__currentStep + 1)
       .replace(/{stepCount}/,     Aj.__steps.length)
       .replace(/{body}/,          Aj.__steps[Aj.__currentStep].body);
-    return _tplHtml;
-  }
-
-  function _domInsert(tplHtml) {
-    var e = Ajt.$('Ajc');
-    if (!e) {
-      var div = document.createElement('div');
-      div.id = 'Ajc';
-      document.body.appendChild(div);
-    }
-    div.innerHTML = tplHtml;
+    return tpl_parsed;
   }
 
   function _setCoords(coords, position) {
@@ -305,50 +288,51 @@ Aj.Control = (function(){
   }
 
   function _drawArrow(topLeft, position, trbl) {
-    if (!(arrow = Ajt.$('ajArrow'))) {
-      var arrow               = document.createElement('div');
-      arrow.id                = 'ajArrow';
-      document.body.appendChild(arrow);
+    var arrow = jQuery('#ajArrow');
+    //add arrow div if not present
+    if ( arrow.length == 0 ) {
+      jQuery('<div id="ajArrow"></div>').appendTo("body");
     }
-
-    arrow.style.position    = position;
-    arrow.style.top         = topLeft.top + 'px';
-    arrow.style.left        = topLeft.left + 'px';
-    arrow.style.background  = 'url(' + Aj.BASE_URL + 'skins/' + Aj.skinId.toLowerCase() + '/arr_' + trbl.charAt(0) + '.png)';
+    arrow.css({
+      'position' : position,
+      'top' : topLeft.top + 'px',
+      'left' : topLeft.left + 'px',
+      'background' : 'url(' + Aj.BASE_URL + 'skins/' + Aj.skinId.toLowerCase() + '/arr_' + trbl.charAt(0) + '.png)'
+    });
   }
 
   return {
     /**
      * Callback handler for template files. Takes template HTML and fills placeholders
-     * @author Arash Yalpani
      *
-     * @param _tplHtml HTML code including Amberjack placeholders
-     *
-     * @example Aj.Control.open('<div>{body}</div>')
+     * @example Aj.Control.open()
      * Note that this method should be called directly through control.tpl.js files
      */
 
-    open: function(tplHtml) {
-      var tplHml = _fillTemplate(tplHtml);
-      _domInsert(tplHml);
-
+    open: function() {
+      var ctrDiv = jQuery('#Ajc'),
+          tplHtml = _fillTemplate();
+      //insert control div bubble only once
+      if (ctrDiv.length == 0 ) {
+        jQuery('<div id="Ajc">' + tplHtml + '</div>').appendTo("body");
+      } else { // div already present just replace existing
+        jQuery('#Ajc').html().replaceWith(tplHtml);
+      }
       // No URL was set AND no click-close-action was configured:
       if (!Aj.closeUrl && !Aj.onCloseClickStay) {
         Ajt.$('ajClose').style.display = 'none';
       }
-
       // post fetch a CSS file you can define by setting Aj.ADD_STYLE
       // right before the call to Aj.open();
       if (Aj.ADD_STYLE) {
         Ajt.postFetch(Aj.ADD_STYLE, 'style');
       }
-
       // post fetch a script you can define by setting Aj.ADD_SCRIPT
       // right before the call to Aj.open();
       if (Aj.ADD_SCRIPT) {
         Ajt.postFetch(Aj.ADD_SCRIPT, 'script');
       }
-
+      //execute callback from current step
       var callback;
       if (callback = Aj.__steps[Aj.__currentStep].callback) {
         eval(callback + '()');
@@ -570,7 +554,32 @@ Aj.Control = (function(){
       }
 
       Aj.Control.attachToExpose(_trbl);
-    }
+    },
+
+    /**
+     * Returns html string for default control bubble template. You can set your
+     * own template within Aj objects settings =>
+     * Aj.template = '<div>my custom bubble</div>';
+     * Aj.open();
+     * Just make sure your html contains the right id's so the tour content can be set
+     **/
+    defaultTemplate: 
+       '<div id="ajControl">' +
+        '<table cellpadding="0" cellspacing="0">' +
+        '<tr id="ajControlNavi">' +
+          '<td id="ajPlayerCell">' +
+            '<a id="ajPrev" class="{prevClass}" href="javascript:;" onclick="this.blur();Aj.Control.prev();return false;"><span>{textPrev}</span></a>' +
+            '<span id="ajCount"><span id="ajCurrentStep">{currentStep}</span> {textOf} <span id="ajStepCount">{stepCount}</span></span>' +
+            '<a id="ajNext" class="{nextClass}" href="javascript:;" onclick="this.blur();Aj.Control.next();return false;"><span>{textNext}</span></a>' +
+          '</td>' +
+          '<td id="ajCloseCell">' +
+            '<a id="ajClose" href="javascript:;" onclick="Aj.close();return false"><span>{textClose}</span></a>' +
+          '</td>' +
+        '</tr>' +
+        '<tr id="ajControlBody"><td colspan="2">{body}</td></tr>' +
+        '</table>' +
+      '</div>'
+    
   };
 })();
 
