@@ -1,20 +1,22 @@
-= On-Page Tutorials 
+= KingTour - Royal On-Page Tours
 
-You can make screenshoots, movies or write a manual for your web app .. OR you create an on-page tutorial
+You can make screenshots, movies or write a manual for your web app .. OR go for on-page tutorials.
 
-On-Page tutorials, as the name suggests, live directly in your app and can serve as:
+On-Page tutorials, as the name suggests, live directly in your app. 
+A user klicks his way throught the web-application while reading your help bubbles 
+
+A KingTour can serve as:
 
 * Getting started tour
 * Help
-* Documentation
-* Show-case
-
+* Documentation with video and images
+* Show-case your app within a demo account
+* just about anything you can imagine, as long as its html
 
 
 == Usage
 
-See example here: http://salesking.github.com/amberjack/
-and some more from the original version(be careful since the tour definition markup has changed) here: http://amberjack2.org/
+See example here: http://salesking.github.com/king_tour/
 
 
 == Changes

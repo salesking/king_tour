@@ -3,7 +3,7 @@
  * @author Arash Yalpani
  */
 
-Aj = (function(){
+KingTour = (function(){
 
   var _resetHash = {},
   _existingOnresize = null; // reference to onresize method of window/document
@@ -22,18 +22,18 @@ Aj = (function(){
       switch (e.keyCode) {
         case 35: // quit
         case 27: // esc
-          Aj.close();break;
+          KingTour.close();break;
         case 8: // backspace
         case 40: // down
         case 37: // left
-          Aj.Dialog.prev();break;
+          KingTour.Dialog.prev();break;
         case 13: // return
         case 38: // up
         case 39: // right
-          Aj.Dialog.next();break;
+          KingTour.Dialog.next();break;
         case 32: // space - needs bugfix since it scrolls the window body
           e.returnValue = false;
-          Aj.Dialog.next();
+          KingTour.Dialog.next();
           break;
       }
     }
@@ -53,7 +53,7 @@ Aj = (function(){
       }
     }
 
-    Ajt.alert('DIV with CLASS "ajTourDef" and ID "' + tourId + '" is not defined');
+    KingToolz.alert('DIV with CLASS "ajTourDef" and ID "' + tourId + '" is not defined');
     return false;
   }
 
@@ -78,7 +78,7 @@ Aj = (function(){
       //same url set twice(f.ex. return back to home page) the url param tourStep
       //MUST be set and overrides this setting
       if ( url_matches && !stepSet) {
-        Aj.__currentStep = stepIndex;
+        KingTour.__currentStep = stepIndex;
         stepSet = true
       }
       //insert tour steps under this url
@@ -90,8 +90,8 @@ Aj = (function(){
 
         //set current step to given step from url param.
         //used in interpage tours => mypage.de?tourStep=13
-        if (Ajt.getUrlParam(location.href, 'tourStep') && url_matches) {
-          Aj.__currentStep = parseInt(Ajt.getUrlParam(location.href, 'tourStep')); //implicit conversion to int
+        if (KingToolz.getUrlParam(location.href, 'tourStep') && url_matches) {
+          KingTour.__currentStep = parseInt(KingToolz.getUrlParam(location.href, 'tourStep')); //implicit conversion to int
         }
 
         steps[stepIndex].body = cn[j].innerHTML;
@@ -103,45 +103,49 @@ Aj = (function(){
   }
 
   function _saveResetValues() {
-    _resetHash.textOf             = Aj.textOf;
-    _resetHash.textClose          = Aj.textClose;
-    _resetHash.textPrev           = Aj.textPrev;
-    _resetHash.textNext           = Aj.textNext;
-    _resetHash.onCloseClickStay   = Aj.onCloseClickStay;
-    _resetHash.doCoverBody        = Aj.doCoverBody;
-    _resetHash.mouseNav   = Aj.mouseNav;
-    _resetHash.urlPassTourParams  = Aj.urlPassTourParams;
-    _resetHash.currentStep      = 0;
+    _resetHash.textOf             = KingTour.textOf;
+    _resetHash.textClose          = KingTour.textClose;
+    _resetHash.textPrev           = KingTour.textPrev;
+    _resetHash.textNext           = KingTour.textNext;
+    _resetHash.onCloseClickStay   = KingTour.onCloseClickStay;
+    _resetHash.doCoverBody        = KingTour.doCoverBody;
+    _resetHash.mouseNav           = KingTour.mouseNav;
+    _resetHash.urlPassTourParams  = KingTour.urlPassTourParams;
+    _resetHash.currentStep        = 0;
+    _resetHash.dialogSel          = KingTour.dialogClass;
+    _resetHash.dialogBodySel      = KingTour.dialogBodySel ;
   }
 
   function _doResetValues() {
-    Aj.textOf             = _resetHash.textOf;
-    Aj.textClose          = _resetHash.textClose;
-    Aj.textPrev           = _resetHash.textPrev;
-    Aj.textNext           = _resetHash.textNext;
-    Aj.onCloseClickStay   = _resetHash.onCloseClickStay;
-    Aj.doCoverBody        = _resetHash.doCoverBody;
-    Aj.mouseNav   = _resetHash.mouseNav;
-    Aj.urlPassTourParams  = _resetHash.urlPassTourParams;
-    Aj.__currentStep      = _resetHash.currentStep;
+    KingTour.textOf             = _resetHash.textOf;
+    KingTour.textClose          = _resetHash.textClose;
+    KingTour.textPrev           = _resetHash.textPrev;
+    KingTour.textNext           = _resetHash.textNext;
+    KingTour.dialogClass           = _resetHash.dialogSel;
+    KingTour.dialogBodySel      = _resetHash.dialogBodySel;
+    
+    KingTour.onCloseClickStay   = _resetHash.onCloseClickStay;
+    KingTour.doCoverBody        = _resetHash.doCoverBody;
+    KingTour.mouseNav   = _resetHash.mouseNav;
+    KingTour.urlPassTourParams  = _resetHash.urlPassTourParams;
+    KingTour.__currentStep      = _resetHash.currentStep;
   }
 
   return {
     // constants
-    BASE_URL          : 'http://github.com/salesking/amberjack/raw/master/', // do not forget trailing slash!
+    BASE_URL          : 'http://github.com/salesking/king_tour/raw/master/', // do not forget trailing slash!
     // public attributes
     // - set these through url (...&tourId=MyTour&skinId=Safari...)
-    // - OR right before the call to Aj.open()
+    // - OR right before the call to KingTour.open()
     tourId            : null,  // mandatory: if not set, tour will not open
-    skinId            : null,  // optional: if not set, skin "model_t" will be used
+    skinId            : null,  // optional: if not set, skin "salesking" will be used
 
-    // Options - set these right before the call to Aj.open()
+    // Options - set these right before the call to KingTour.open()
     template          : null,   //html snippet to be used as template for popup bubbles
     textOf            : 'of',  // text of splitter between "2 of 3"
     textClose         : 'x',   // text of close button
     textPrev          : '',    // text of previous button (i.e. &laquo;)
     textNext          : '',    // text of next button (i.e. &raquo;)
-
     onCloseClickStay  : false, // set this to 'true', if you want the close button to close tour but remain on current page
     doCoverBody       : false, // set this to 'true', if a click on the body cover should force it to close
     mouseNav          : true,  // forward / backward on mouse click
@@ -149,7 +153,12 @@ Aj = (function(){
                                //     template. the tourId and skindId params will not get passed on prev/next button click
     openCallback : null,      // callback to be executed on open
     closeCallback : null,     // callback to be executed on close
-    // protected attributes - don't touch (used by other Aj.* classes)
+    // jQuery selector for modal popup.
+    // The default dialog template inserts a div with this id. The selector is used for the modal to be inserted and closed
+    dialogSel         : '#ktDialog',
+    dialogBodySel         : '#ktDialogBody',
+
+    // protected attributes - don't touch (used by other KingTour.* classes)
     __steps             : [],
     __currentStep       : null,
 
@@ -163,97 +172,99 @@ Aj = (function(){
      *
      * @author Arash Yalpani
      *
-     * @example Aj.open()
+     * @example KingTour.open()
      * Note that a HEAD tag needs to be existent in the current document
      */
 
     open: function() {
-      // set Aj.tourId
-      Aj.tourId = Aj.tourId || Ajt.getUrlParam(location.href, 'tourId');
-      if (!Aj.tourId) { // do nothing if no tourId is found
-        return ;
-      }
+      // set KingTour.tourId
+      KingTour.tourId = KingTour.tourId || KingToolz.getUrlParam(location.href, 'tourId');
+      if (!KingTour.tourId) { return ; /* do nothing if no tourId is found */  }
 
       _saveResetValues();
 
-      var tourDef = _getTourDef(Aj.tourId);
-      Aj.__steps  = _transformTourDefToSteps(tourDef);
+      var tourDef = _getTourDef(KingTour.tourId);
+      KingTour.__steps  = _transformTourDefToSteps(tourDef);
 
-      // set Aj.skinId
-      Aj.skinId = Aj.skinId || Ajt.getUrlParam(location.href, 'skinId');
-      Aj.skinId = Aj.skinId || 'model_t';
-
-      // set Aj.closeUrl
-      Aj.closeUrl    = tourDef.getAttribute('title') || false;
-
+      // set KingTour.skinId
+      KingTour.skinId = KingTour.skinId || KingToolz.getUrlParam(location.href, 'skinId');
+      KingTour.skinId = KingTour.skinId || 'salesking';
+      // set KingTour.closeUrl
+      KingTour.closeUrl    = tourDef.getAttribute('title') || false;
       // get Style
-      Ajt.postFetch(Aj.BASE_URL + 'skins/' + Aj.skinId.toLowerCase() + '/style.css', 'style');
+      KingToolz.postFetch(KingTour.BASE_URL + 'skins/' + KingTour.skinId.toLowerCase() + '/style.css', 'style');
       // trigger open control bubble
-      Aj.Dialog.open();
-      // mix Aj.onresize into existing onresize function, so wwe can reset it later
+      KingTour.Dialog.open();
+      // mix KingTour.onresize into existing onresize function, so we can reset it later
       var ref = document.onresize ? document : window;
-      Aj._existingOnresize = ref.onresize;
+      KingTour._existingOnresize = ref.onresize;
       ref.onresize = function() {
-        Aj.onResize();
-        if (Aj._existingOnresize) {
-          Aj._existingOnresize();
+        KingTour.onResize();
+        if (KingTour._existingOnresize) {
+          KingTour._existingOnresize();
         }
       };
-      // call Aj.onResize initially once
-      Aj.onResize();
+      // call KingTour.onResize initially once
+      KingTour.onResize();
       _initKeyboard();
       //run a given open callback
-      if (typeof Aj.openCallback == 'function') { Aj.openCallback(Aj); }
+      if (typeof KingTour.openCallback == 'function') { KingTour.openCallback(KingTour); }
+      //append mouse click event to go to next dialog
+      if (KingTour.mouseNav) {
+        jQuery('.ajCover, #ajExposeCover').live('click', function(){
+          KingTour.Dialog.next;
+        });
+      }
     },
 
     onResize: function() {
       setTimeout( function(){
-        Aj.redrawEverything();
+        KingTour.redrawEverything();
       }, 100);
     },
 
     redrawEverything: function() {
       //set prev/next class for buttons
       jQuery('#ajPrev, #ajNext').removeClass();
-      if (Aj.__currentStep == 0) {
+      if (KingTour.__currentStep == 0) {
         jQuery('#ajPrev').addClass('disabled');
       }
-      if (Aj.__currentStep == Aj.__steps.length - 1) {
+      if (KingTour.__currentStep == KingTour.__steps.length - 1) {
         jQuery('#ajNext').addClass('disabled');
       }
 
-      var ajc = Aj.__steps[ Aj.__currentStep ];
+      var ajc = KingTour.__steps[ KingTour.__currentStep ];
       // set bubble content to current step content
-      jQuery('#ajDialogBody').html(ajc.body);
+      jQuery(KingTour.dialogBodySel).html(ajc.body);
       //set current step number
-      jQuery('#ajCurrentStep').text( Aj.__currentStep + 1 );
-      Aj.Expose.expose(ajc.el, ajc.padding, ajc.position);
-      Aj.Dialog.attachToExpose(ajc.trbl);
-      Aj.Dialog.ensureVisibility();
+      jQuery('#ajCurrentStep').text( KingTour.__currentStep + 1 );
+      KingTour.Expose.expose(ajc.el, ajc.padding, ajc.position);
+      KingTour.Dialog.attachToExpose(ajc.trbl);
+      KingTour.Dialog.ensureVisibility();
     },
 
     /**
      * Gets called, whenever the user clicks on the close button of Amberjack control
      * @author Arash Yalpani
      *
-     * @example Aj.close()
+     * @example KingTour.close()
      */
     close: function() {
       // reset resize handler
       var ref = document.onresize ? document : window;
-      ref.onresize = Aj._existingOnresize ? Aj._existingOnresize : null;
+      ref.onresize = KingTour._existingOnresize ? KingTour._existingOnresize : null;
       //reset mouse contextmenu
-      if (Aj.mouseNav) {  document.body.oncontextmenu = null; }
+      if (KingTour.mouseNav) {  document.body.oncontextmenu = null; }
       // execute close Callback if present
-      if (typeof Aj.closeCallback == 'function') {  Aj.closeCallback(Aj); }
+      if (typeof KingTour.closeCallback == 'function') {  KingTour.closeCallback(KingTour); }
       _doResetValues();
       _reset_keyboard();
       //kick all markup
-      jQuery('#Ajc, .ajCover, #ajArrow, #ajExposeCover').remove();
+      jQuery('' + KingTour.dialogSel + ', .ajCover, #ajArrow, #ajExposeCover').remove();
       //stay in here
-      if (Aj.onCloseClickStay) {  return null; }     
+      if (KingTour.onCloseClickStay) {  return null; }
       //go to the closeUrl if present
-      if (Aj.closeUrl) {  window.location.href = Aj.closeUrl;  }     
+      if (KingTour.closeUrl) {  window.location.href = KingTour.closeUrl;  }
       return null;
     }
   }
@@ -264,26 +275,26 @@ Aj = (function(){
  * @author Arash Yalpani
  */
 
-Aj.Dialog = (function(){
+KingTour.Dialog = (function(){
   var _trbl    = null;
 
   function _fillTemplate() {
     var tpl_parsed = null,
         // use given or default template
-        tpl_raw = Aj.template ? Aj.template : Aj.Dialog.defaultTemplate;
-    tpl_parsed = tpl_raw.replace(/{skinId}/, Aj.skinId)
-      .replace(/{textOf}/,        Aj.textOf)
-      .replace(/{textClose}/,     Aj.textClose)
-      .replace(/{textPrev}/,      Aj.textPrev)
-      .replace(/{textNext}/,      Aj.textNext)
-      .replace(/{currentStep}/,   Aj.__currentStep + 1)
-      .replace(/{stepCount}/,     Aj.__steps.length)
-      .replace(/{body}/,          Aj.__steps[Aj.__currentStep].body);
+        tpl_raw = KingTour.template ? KingTour.template : KingTour.Dialog.defaultTemplate;
+    tpl_parsed = tpl_raw.replace(/{skinId}/, KingTour.skinId)
+      .replace(/{textOf}/,        KingTour.textOf)
+      .replace(/{textClose}/,     KingTour.textClose)
+      .replace(/{textPrev}/,      KingTour.textPrev)
+      .replace(/{textNext}/,      KingTour.textNext)
+      .replace(/{currentStep}/,   KingTour.__currentStep + 1)
+      .replace(/{stepCount}/,     KingTour.__steps.length)
+      .replace(/{body}/,          KingTour.__steps[KingTour.__currentStep].body);
     return tpl_parsed;
   }
 
   function _setCoords(coords, position) {
-    var el = jQuery('#ajDialog')[0];
+    var el = jQuery(KingTour.dialogSel)[0];
     el.style.top      = coords.top      || 'auto';
     el.style.right    = coords.right    || 'auto';
     el.style.bottom   = coords.bottom   || 'auto';
@@ -292,17 +303,15 @@ Aj.Dialog = (function(){
   }
 
   function _drawArrow(topLeft, position, trbl) {
-    var arrow = jQuery('#ajArrow');
     //add arrow div if not present
-    if ( arrow.length == 0 ) {
-      jQuery('<div id="ajArrow"></div>').appendTo("body");
-      arrow = jQuery('#ajArrow');
-    }
+    var arrow = ( jQuery('#ajArrow').length == 0 )
+    ? jQuery('<div id="ajArrow"></div>').appendTo("body")
+    : jQuery('#ajArrow');
     arrow.css({
       'position' : position,
       'top' : topLeft.top + 'px',
       'left' : topLeft.left + 'px',
-      'background' : 'url(' + Aj.BASE_URL + 'skins/' + Aj.skinId.toLowerCase() + '/arr_' + trbl.charAt(0) + '.png)'
+      'background' : 'url(' + KingTour.BASE_URL + 'skins/' + KingTour.skinId.toLowerCase() + '/arr_' + trbl.charAt(0) + '.png)'
     });
   }
 
@@ -310,101 +319,99 @@ Aj.Dialog = (function(){
     /**
      * Callback handler for template files. Takes template HTML and fills placeholders
      *
-     * @example Aj.Dialog.open()
+     * @example KingTour.Dialog.open()
      * Note that this method should be called directly through control.tpl.js files
      */
 
     open: function() {
-      var ctrDiv = jQuery('#Ajc'),
+      var dialog = jQuery( KingTour.dialogSel ),
           tplHtml = _fillTemplate();
-      //insert control div bubble only once
-      if (ctrDiv.length == 0 ) {
-        jQuery('<div id="Ajc">' + tplHtml + '</div>').appendTo("body");
-      } else { // div already present just replace existing
-        jQuery('#Ajc').html().replaceWith(tplHtml);
-      }
+      //insert dialog div bubble only once, else div already present just replace existing
+      (dialog.length == 0 ) ? jQuery(tplHtml).appendTo("body")
+                            : jQuery(KingTour.dialogSel).replaceWith(tplHtml);
+      
       // No URL was set AND no click-close-action was configured:
-      if (!Aj.closeUrl && !Aj.onCloseClickStay) {
+      if (!KingTour.closeUrl && !KingTour.onCloseClickStay) {
         jQuery('#ajClose').hide();
       }
-      // post fetch a CSS file you can define by setting Aj.ADD_STYLE
-      // right before the call to Aj.open();
-      if (Aj.ADD_STYLE) {
-        Ajt.postFetch(Aj.ADD_STYLE, 'style');
+      // post fetch a CSS file you can define by setting KingTour.ADD_STYLE
+      // right before the call to KingTour.open();
+      if (KingTour.ADD_STYLE) {
+        KingToolz.postFetch(KingTour.ADD_STYLE, 'style');
       }
-      // post fetch a script you can define by setting Aj.ADD_SCRIPT
-      // right before the call to Aj.open();
-      if (Aj.ADD_SCRIPT) {
-        Ajt.postFetch(Aj.ADD_SCRIPT, 'script');
+      // post fetch a script you can define by setting KingTour.ADD_SCRIPT
+      // right before the call to KingTour.open();
+      if (KingTour.ADD_SCRIPT) {
+        KingToolz.postFetch(KingTour.ADD_SCRIPT, 'script');
       }
       //execute callback from current step
       var callback;
-      if (callback = Aj.__steps[Aj.__currentStep].callback) {
+      if (callback = KingTour.__steps[KingTour.__currentStep].callback) {
         eval(callback + '()');
       }
 
-      Aj.redrawEverything();
+      KingTour.redrawEverything();
     },
    
     prev: function() {
-      if (Aj.__currentStep == 0) {
+      if (KingTour.__currentStep == 0) {
         return ;
       }
 
       // we will not change url
       var callback;
-      if (Aj.__steps[Aj.__currentStep].pageUrl == Aj.__steps[Aj.__currentStep - 1].pageUrl) {
-        if (callback = Aj.__steps[Aj.__currentStep].callback) {
+      if (KingTour.__steps[KingTour.__currentStep].pageUrl == KingTour.__steps[KingTour.__currentStep - 1].pageUrl) {
+        if (callback = KingTour.__steps[KingTour.__currentStep].callback) {
           eval(callback + '(true)');
         }
 
-        Aj.__currentStep--;
+        KingTour.__currentStep--;
 
-        if (callback = Aj.__steps[Aj.__currentStep].callback) {
+        if (callback = KingTour.__steps[KingTour.__currentStep].callback) {
           eval(callback + '()');
         }
 
-        Aj.redrawEverything();
+        KingTour.redrawEverything();
         return ;
       }
 
-      var prevStep = Aj.__currentStep - 1,
-          prevUrl = Aj.__steps[prevStep].pageUrl,
+      var prevStep = KingTour.__currentStep - 1,
+          prevUrl = KingTour.__steps[prevStep].pageUrl,
           urlSplit = prevUrl.split('?'),
           urlQuery = urlSplit[1] || false;
-      if (Aj.urlPassTourParams) {
-        prevUrl+= (urlQuery ? '&' : '?') + 'tourId=' + Aj.tourId + '&tourStep=' + prevStep + (Aj.skinId ? '&skinId=' + Aj.skinId : '');
+      if (KingTour.urlPassTourParams) {
+        prevUrl+= (urlQuery ? '&' : '?') + 'tourId=' + KingTour.tourId + '&tourStep=' + prevStep + (KingTour.skinId ? '&skinId=' + KingTour.skinId : '');
       }
 
       window.location.href = prevUrl;
     },
 
     next: function() {
-      if (Aj.__currentStep == Aj.__steps.length - 1) {
+      if (KingTour.__currentStep == KingTour.__steps.length - 1) {
         return ;
       }
       var callback;
       //stay on the same page
-      if (Aj.__steps[Aj.__currentStep].pageUrl == Aj.__steps[Aj.__currentStep + 1].pageUrl) {
-        if (callback = Aj.__steps[Aj.__currentStep].callback) {
+      if (KingTour.__steps[KingTour.__currentStep].pageUrl == KingTour.__steps[KingTour.__currentStep + 1].pageUrl) {
+        if (callback = KingTour.__steps[KingTour.__currentStep].callback) {
           eval(callback + '(true)');
         }
 
-        Aj.__currentStep++;
+        KingTour.__currentStep++;
 
-        if (callback = Aj.__steps[Aj.__currentStep].callback) {
+        if (callback = KingTour.__steps[KingTour.__currentStep].callback) {
           eval(callback + '()');
         }
-        Aj.redrawEverything();
+        KingTour.redrawEverything();
         return ;
       }
       //construct next link
-      var nextStep = Aj.__currentStep + 1,
-          nextUrl = Aj.__steps[nextStep].pageUrl,
+      var nextStep = KingTour.__currentStep + 1,
+          nextUrl = KingTour.__steps[nextStep].pageUrl,
           urlSplit = nextUrl.split('?'),
           urlQuery = urlSplit[1] || false;
-      if (Aj.urlPassTourParams) {
-        nextUrl+= (urlQuery ? '&' : '?') + 'tourId=' + Aj.tourId + '&tourStep=' + nextStep + (Aj.skinId ? '&skinId=' + Aj.skinId : '');
+      if (KingTour.urlPassTourParams) {
+        nextUrl+= (urlQuery ? '&' : '?') + 'tourId=' + KingTour.tourId + '&tourStep=' + nextStep + (KingTour.skinId ? '&skinId=' + KingTour.skinId : '');
       }
 
       window.location.href = nextUrl;
@@ -412,11 +419,11 @@ Aj.Dialog = (function(){
 
     attachToExpose: function(trbl) {
       _trbl = trbl;
-      var dialog = jQuery('#ajDialog')[0],
-      ajcWidth  = Ajt.getWidth(dialog),
-      ajcHeight = Ajt.getHeight(dialog),
-      coords    = Aj.Expose.getCoords(),
-      position  = Aj.Expose.getPosition(),
+      var dialog = jQuery(KingTour.dialogSel)[0],
+      ajcWidth  = KingToolz.getWidth(dialog),
+      ajcHeight = KingToolz.getHeight(dialog),
+      coords    = KingTour.Expose.getCoords(),
+      position  = KingTour.Expose.getPosition(),
       arrowTop    = 0,
       arrowLeft   = 0,
       controlTop  = 0,
@@ -512,18 +519,18 @@ Aj.Dialog = (function(){
     },
 
     ensureVisibility: function() {
-      if ('fixed' == Aj.__steps[Aj.__currentStep].position) {
+      if ('fixed' == KingTour.__steps[KingTour.__currentStep].position) {
         return ;
       }
 
-      var dialog   = jQuery('#ajDialog')[0],
-        ajcTop      = Ajt.getTop(dialog),
-        ajcHeight   = Ajt.getHeight(dialog),
-        ajcBottom   = Ajt.getBottom(dialog),
-        vpScrollTop = Ajt.viewport().scrollTop,
-        vpHeight    = Ajt.viewport().height,
+      var dialog   = jQuery(KingTour.dialogSel)[0],
+        ajcTop      = KingToolz.getTop(dialog),
+        ajcHeight   = KingToolz.getHeight(dialog),
+        ajcBottom   = KingToolz.getBottom(dialog),
+        vpScrollTop = KingToolz.viewport().scrollTop,
+        vpHeight    = KingToolz.viewport().height,
         // coordinates
-        coords = Aj.Expose.getCoords(),
+        coords = KingTour.Expose.getCoords(),
         superTop    = Math.min(coords.t, ajcTop),
         superBottom = Math.max(coords.b, ajcBottom),
         superHeight = superBottom - superTop,
@@ -542,14 +549,10 @@ Aj.Dialog = (function(){
         return ;
       }
 
-      var scrollTo = 0;
-      // trbl = b
-      if (ajcBottom == superBottom) {
-        scrollTo = superBottom - vpHeight + 20;
-      } else {
-        scrollTo = superTop - 20;
-      }
-
+      var scrollTo = (ajcBottom == superBottom) 
+                      ? superBottom - vpHeight + 2 /* trbl = b */
+                      : superTop - 20;
+    
       window.scroll(0, Math.max(maxScrollTop, Math.min(minScrollTop, scrollTo)));
     },
 
@@ -558,32 +561,32 @@ Aj.Dialog = (function(){
         return ;
       }
 
-      Aj.Dialog.attachToExpose(_trbl);
+      KingTour.Dialog.attachToExpose(_trbl);
     },
 
     /**
      * Returns html string for default control bubble template. You can set your
-     * own template within Aj objects settings =>
-     * Aj.template = '<div>my custom bubble</div>';
-     * Aj.open();
+     * own template within KingTour objects settings =>
+     * KingTour.template = '<div>my custom bubble</div>';
+     * KingTour.open();
      * Just make sure your html contains the right id's so the tour content can be set
      **/
     defaultTemplate: 
-      '<div id="ajDialog">' +
+      '<div id="ktDialog">' +
         '<div id="dialogHead">' +
-          '<a id="ajPrev" class="{prevClass}" href="javascript:;" onclick="this.blur();Aj.Dialog.prev();return false;"><span>{textPrev}</span></a>' +
+          '<a id="ajPrev" class="{prevClass}" href="javascript:;" onclick="this.blur();KingTour.Dialog.prev();return false;"><span>{textPrev}</span></a>' +
           '<span id="ajCount"><span id="ajCurrentStep">{currentStep}</span> {textOf} <span id="ajStepCount">{stepCount}</span></span>' +
-          '<a id="ajNext" class="{nextClass}" href="javascript:;" onclick="this.blur();Aj.Dialog.next();return false;"><span>{textNext}</span></a>' +
-          '<a id="ajClose" href="javascript:;" onclick="Aj.close();return false">{textClose}</a>' +
+          '<a id="ajNext" class="{nextClass}" href="javascript:;" onclick="this.blur();KingTour.Dialog.next();return false;"><span>{textNext}</span></a>' +
+          '<a id="ajClose" href="javascript:;" onclick="KingTour.close();return false">{textClose}</a>' +
         '</div>' +
-        '<div id="ajDialogBody">{body}</div>' +
+        '<div id="ktDialogBody">{body}</div>' +
       '</div>'
     
   };
 })();
 
 
-Aj.Expose = (function(){
+KingTour.Expose = (function() {
   var _element  = null,  // jquery selector MUST return array of dom elements from which the first el is taken
   _padding      = 0,
   _coords       = [],
@@ -596,103 +599,84 @@ Aj.Expose = (function(){
     // use the first element jQuery finds
     var el = jQuery(_element)[0],
     coords = {};
-    coords.t = Ajt.getTop(el)     - _padding;
-    coords.r = Ajt.getRight(el)   + _padding;
-    coords.b = Ajt.getBottom(el)  + _padding;
-    coords.l = Ajt.getLeft(el)    - _padding;
-    coords.w = Ajt.getWidth(el)   + _padding * 2;
-    coords.h = Ajt.getHeight(el)  + _padding * 2;
-
+    coords.t = KingToolz.getTop(el)     - _padding;
+    coords.r = KingToolz.getRight(el)   + _padding;
+    coords.b = KingToolz.getBottom(el)  + _padding;
+    coords.l = KingToolz.getLeft(el)    - _padding;
+    coords.w = KingToolz.getWidth(el)   + _padding * 2;
+    coords.h = KingToolz.getHeight(el)  + _padding * 2;
     return coords;
   }
 
   function _drawTopCover() {
-    if (!(cover = Ajt.$('ajCoverTop'))) {
-      var cover       = document.createElement('div');
-      cover.id        = 'ajCoverTop';
-      cover.className = 'ajCover';
-      if (Aj.mouseNav) { cover.onclick = Aj.Dialog.next; };
-      document.body.appendChild(cover);
-    }
-
+    var cover = ( 0 === jQuery('#ajCoverTop').length )
+                ? jQuery('<div id="ajCoverTop" class="ajCover"></div>').appendTo("body")
+                : jQuery('#ajCoverTop');
     var height = Math.max(0, _coords.t);
-    cover.style.position  = _position;
-    cover.style.top         = '0px';
-    cover.style.height      = height + 'px';
+    cover.css({
+      'position' : _position,
+      'top' : '0px',
+      'height' : height + 'px'
+    });
   }
 
   function _drawBottomCover() {
-    if (!(cover = Ajt.$('ajCoverBottom'))) {
-      var cover       = document.createElement('div');
-      cover.id        = 'ajCoverBottom';
-      cover.className = 'ajCover';
-      if (Aj.mouseNav) { cover.onclick = Aj.Dialog.next;  }
-      document.body.appendChild(cover);
-    }
+    var cover = ( 0 === jQuery('#ajCoverBottom').length )
+                ? jQuery('<div id="ajCoverBottom" class="ajCover"></div>').appendTo("body")
+                : jQuery('#ajCoverBottom');
     var top = Math.max(0, _coords.b);
-    if (_position == 'fixed') {
-      cover.style.height = Math.max(0, Ajt.viewport().height - top) + 'px';
-    } else {
-      cover.style.height = (Ajt.getWindowInnerHeight() - top) + 'px';
-    }
-    cover.style.top         = top + 'px';
-    cover.style.position    = _position;
-
+    var height = (_position == 'fixed') 
+                  ? Math.max(0, KingToolz.viewport().height - top) + 'px'
+                  : (KingToolz.getWindowInnerHeight() - top) + 'px';
+    cover.css({
+      'position' : _position,
+      'top' : top + 'px',
+      'height' : height + 'px'
+    });
   }
 
   function _drawLeftCover() {
-    if (!(cover = Ajt.$('ajCoverLeft'))) {
-      var cover       = document.createElement('div');
-      cover.id        = 'ajCoverLeft';
-      cover.className = 'ajCover';
-      if (Aj.mouseNav) { cover.onclick = Aj.Dialog.next;  }
-      document.body.appendChild(cover);
-    }
+    var cover = (jQuery('#ajCoverLeft').length == 0) 
+                  ? jQuery('<div id="ajCoverLeft" class="ajCover"></div>').appendTo("body")
+                  : jQuery('#ajCoverLeft');
 
     var width = Math.max(0, _coords.l);
-    cover.style.position    = _position;
-    cover.style.top         = _coords.t + 'px';
-    cover.style.height      = _coords.h + 'px';
-    cover.style.width       = width + 'px';
-
+    cover.css({
+      'position' : _position,
+      'top' : _coords.t + 'px',
+      'width' : width + 'px',
+      'height' : _coords.h + 'px'
+    });
   }
 
   function _drawRightCover() {
-    if (!(cover = Ajt.$('ajCoverRight'))) {
-      var cover             = document.createElement('div');
-      cover.id              = 'ajCoverRight';
-      cover.className       = 'ajCover';
-      if (Aj.mouseNav) { cover.onclick = Aj.Dialog.next; }
-      document.body.appendChild(cover);
-    }
-
-    var width = Math.max(0, _coords.r);
-    cover.style.position    = _position;
-    cover.style.top         = _coords.t + 'px';
-    cover.style.height      = _coords.h + 'px';
-    cover.style.left        = _coords.r + 'px';
-
+    var cover = (0 === jQuery('#ajCoverRight').length)
+                 ? jQuery('<div id="ajCoverRight" class="ajCover"></div>').appendTo("body")
+                 : jQuery('#ajCoverRight');
+    cover.css({
+      'position' : _position,
+      'top' : _coords.t + 'px',
+      'left' : _coords.r + 'px',
+      'height' : _coords.h + 'px'
+    });
   }
 
   function _drawExposeCover() {
-    if (!(cover = Ajt.$('ajExposeCover'))) {
-      var cover = document.createElement('div');
-      cover.id  = 'ajExposeCover';
-      if (Aj.mouseNav) {
-        cover.onclick = Aj.Dialog.next;
-      }
-      document.body.appendChild(cover);
-    }
-    cover.style.position    = _position;
-    cover.style.top         = _coords.t + 'px';
-    cover.style.left        = _coords.l + 'px';
-    cover.style.height      = _coords.h + 'px';
-    cover.style.width       = _coords.w + 'px';
+    var cover = ( 0 === jQuery('#ajExposeCover').length)
+                ? jQuery('<div id="ajExposeCover"></div>').appendTo("body")
+                : jQuery('#ajExposeCover');
+    cover.css({
+      'position' : _position,
+      'top' : _coords.t + 'px',
+      'left' : _coords.l + 'px',
+      'height' : _coords.h + 'px',
+      'width' : _coords.w + 'px'
+    });
   }
 
   function _drawCover() {
-    if (Aj.mouseNav) {
-      document.body.oncontextmenu = function(){Aj.Dialog.prev();return false};
+    if (KingTour.mouseNav) { // add previous navigation if right mouse is clicked
+      document.body.oncontextmenu = function(){KingTour.Dialog.prev();return false};
     }
     _drawTopCover();
     _drawBottomCover();
@@ -733,14 +717,7 @@ Aj.Expose = (function(){
  * @author Arash Yalpani
  */
 
-Ajt = {
-
-  /**
-   * Wrapper method for document.getElementById.
-   */
-  $: function(id) {
-    return document.getElementById(id);
-  },
+KingToolz = {
 
   alert: function(str) {
     alert('Amberjack alert: ' + str);
@@ -755,21 +732,21 @@ Ajt = {
   },
 
   getLeft: function(el) {
-    if (el.offsetParent){ return el.offsetLeft + Ajt.getLeft(el.offsetParent); }
+    if (el.offsetParent){ return el.offsetLeft + KingToolz.getLeft(el.offsetParent); }
     return el.offsetLeft;
   },
 
   getTop: function(el) {
-    if (el.offsetParent){ return el.offsetTop + Ajt.getTop(el.offsetParent); }
+    if (el.offsetParent){ return el.offsetTop + KingToolz.getTop(el.offsetParent); }
     return el.offsetTop;
   },
 
   getRight: function(el) {
-    return Ajt.getLeft(el) + Ajt.getWidth(el);
+    return KingToolz.getLeft(el) + KingToolz.getWidth(el);
   },
 
   getBottom: function(el) {
-    return Ajt.getTop(el) + Ajt.getHeight(el);
+    return KingToolz.getTop(el) + KingToolz.getHeight(el);
   },
 
   viewport: function() {
@@ -800,7 +777,7 @@ Ajt = {
    * Copied and modified:
    * http://www.dynamicdrive.com/forums/archive/index.php/t-10373.html
    *
-   * @example Ajt.getWindowInnerHeight()
+   * @example KingToolz.getWindowInnerHeight()
    */
   getWindowInnerHeight: function() {
       // shortcuts
@@ -898,5 +875,5 @@ Ajt = {
 };
 
 setTimeout( function(){
-  Aj.open(); // call Aj.open() to catch possibly set url params
+  KingTour.open(); // call KingTour.open() to catch possibly set url params
 }, 500);
