@@ -26,14 +26,14 @@ Aj = (function(){
         case 8: // backspace
         case 40: // down
         case 37: // left
-          Aj.Control.prev();break;
+          Aj.Dialog.prev();break;
         case 13: // return
         case 38: // up
         case 39: // right
-          Aj.Control.next();break;
+          Aj.Dialog.next();break;
         case 32: // space - needs bugfix since it scrolls the window body
           e.returnValue = false;
-          Aj.Control.next();
+          Aj.Dialog.next();
           break;
       }
     }
@@ -65,16 +65,19 @@ Aj = (function(){
     steps = [],
     stepIndex = 0,
     stepSet = false;
-    //collect top most url definitions
+    //collect top most div's with url definitions in title
     for (var i = 0; i < children.length; i++) {
       if (!children[i].tagName || children[i].tagName.toLowerCase() != 'div') { continue ; }
-
+      // init page object
       var page = {}
+      // set the url taken from this div's title attr
       page.url = children[i].getAttribute('title');
+      //check if the url matches the curret location
+      var url_matches = new RegExp(''+page.url+'', "gi").test(location.href);
       //only match tour url once, if a tour goes over multiple pages and has the
       //same url set twice(f.ex. return back to home page) the url param tourStep
       //MUST be set and overrides this setting
-      if (Ajt.urlMatch(page.url) && !stepSet) {
+      if ( url_matches && !stepSet) {
         Aj.__currentStep = stepIndex;
         stepSet = true
       }
@@ -85,8 +88,9 @@ Aj = (function(){
         //load the settings from step title
         eval('steps[stepIndex] = {' + cn[j].title + '};');
 
-        //set given step from url param important for interpage tours
-        if (Ajt.getUrlParam(location.href, 'tourStep') && Ajt.urlMatch(page.url)) {
+        //set current step to given step from url param.
+        //used in interpage tours => mypage.de?tourStep=13
+        if (Ajt.getUrlParam(location.href, 'tourStep') && url_matches) {
           Aj.__currentStep = parseInt(Ajt.getUrlParam(location.href, 'tourStep')); //implicit conversion to int
         }
 
@@ -150,7 +154,7 @@ Aj = (function(){
     __currentStep       : null,
 
     /**
-     * Initializes tour, creates transparent layer and causes Amberjack Control
+     * Initializes tour, creates transparent layer and causes Amberjack Dialog
      * to open the skin's template (control.tpl.js) into document. Call this
      * manually right after inclusion of this library. Don't forget to pass
      * tourId param through URL to show tour!
@@ -185,7 +189,7 @@ Aj = (function(){
       // get Style
       Ajt.postFetch(Aj.BASE_URL + 'skins/' + Aj.skinId.toLowerCase() + '/style.css', 'style');
       // trigger open control bubble
-      Aj.Control.open();
+      Aj.Dialog.open();
       // mix Aj.onresize into existing onresize function, so wwe can reset it later
       var ref = document.onresize ? document : window;
       Aj._existingOnresize = ref.onresize;
@@ -203,7 +207,7 @@ Aj = (function(){
     },
 
     onResize: function() {
-      setTimeout(function(){
+      setTimeout( function(){
         Aj.redrawEverything();
       }, 100);
     },
@@ -220,12 +224,12 @@ Aj = (function(){
 
       var ajc = Aj.__steps[ Aj.__currentStep ];
       // set bubble content to current step content
-      Ajt.$('ajControlBody').childNodes[0].innerHTML = ajc.body;
+      jQuery('#ajDialogBody').html(ajc.body);
       //set current step number
       jQuery('#ajCurrentStep').text( Aj.__currentStep + 1 );
       Aj.Expose.expose(ajc.el, ajc.padding, ajc.position);
-      Aj.Control.attachToExpose(ajc.trbl);
-      Aj.Control.ensureVisibility();
+      Aj.Dialog.attachToExpose(ajc.trbl);
+      Aj.Dialog.ensureVisibility();
     },
 
     /**
@@ -256,17 +260,17 @@ Aj = (function(){
 })();
 
 /**
- * Amberjack Control class
+ * Amberjack Dialog class
  * @author Arash Yalpani
  */
 
-Aj.Control = (function(){
+Aj.Dialog = (function(){
   var _trbl    = null;
 
   function _fillTemplate() {
     var tpl_parsed = null,
         // use given or default template
-        tpl_raw = Aj.template ? Aj.template : Aj.Control.defaultTemplate;
+        tpl_raw = Aj.template ? Aj.template : Aj.Dialog.defaultTemplate;
     tpl_parsed = tpl_raw.replace(/{skinId}/, Aj.skinId)
       .replace(/{textOf}/,        Aj.textOf)
       .replace(/{textClose}/,     Aj.textClose)
@@ -279,7 +283,7 @@ Aj.Control = (function(){
   }
 
   function _setCoords(coords, position) {
-    var el = Ajt.$('ajControl');
+    var el = jQuery('#ajDialog')[0];
     el.style.top      = coords.top      || 'auto';
     el.style.right    = coords.right    || 'auto';
     el.style.bottom   = coords.bottom   || 'auto';
@@ -292,6 +296,7 @@ Aj.Control = (function(){
     //add arrow div if not present
     if ( arrow.length == 0 ) {
       jQuery('<div id="ajArrow"></div>').appendTo("body");
+      arrow = jQuery('#ajArrow');
     }
     arrow.css({
       'position' : position,
@@ -305,7 +310,7 @@ Aj.Control = (function(){
     /**
      * Callback handler for template files. Takes template HTML and fills placeholders
      *
-     * @example Aj.Control.open()
+     * @example Aj.Dialog.open()
      * Note that this method should be called directly through control.tpl.js files
      */
 
@@ -320,7 +325,7 @@ Aj.Control = (function(){
       }
       // No URL was set AND no click-close-action was configured:
       if (!Aj.closeUrl && !Aj.onCloseClickStay) {
-        Ajt.$('ajClose').style.display = 'none';
+        jQuery('#ajClose').hide();
       }
       // post fetch a CSS file you can define by setting Aj.ADD_STYLE
       // right before the call to Aj.open();
@@ -407,9 +412,9 @@ Aj.Control = (function(){
 
     attachToExpose: function(trbl) {
       _trbl = trbl;
-      var ajControl = Ajt.$('ajControl'),
-      ajcWidth  = Ajt.getWidth(ajControl),
-      ajcHeight = Ajt.getHeight(ajControl),
+      var dialog = jQuery('#ajDialog')[0],
+      ajcWidth  = Ajt.getWidth(dialog),
+      ajcHeight = Ajt.getHeight(dialog),
       coords    = Aj.Expose.getCoords(),
       position  = Aj.Expose.getPosition(),
       arrowTop    = 0,
@@ -511,27 +516,27 @@ Aj.Control = (function(){
         return ;
       }
 
-      var ajControl   = Ajt.$('ajControl');
-      var ajcTop      = Ajt.getTop(ajControl);
-      var ajcHeight   = Ajt.getHeight(ajControl);
-      var ajcBottom   = Ajt.getBottom(ajControl);
-      var vpScrollTop = Ajt.viewport().scrollTop;
-      var vpHeight    = Ajt.viewport().height;
-
-      var coords = Aj.Expose.getCoords();
-      var superTop    = Math.min(coords.t, ajcTop);
-      var superBottom = Math.max(coords.b, ajcBottom);
-      var superHeight = superBottom - superTop;
-
-      var minScrollTop = ajcTop - 20;
-      var maxScrollTop = ajcBottom + 20 - vpHeight;
+      var dialog   = jQuery('#ajDialog')[0],
+        ajcTop      = Ajt.getTop(dialog),
+        ajcHeight   = Ajt.getHeight(dialog),
+        ajcBottom   = Ajt.getBottom(dialog),
+        vpScrollTop = Ajt.viewport().scrollTop,
+        vpHeight    = Ajt.viewport().height,
+        // coordinates
+        coords = Aj.Expose.getCoords(),
+        superTop    = Math.min(coords.t, ajcTop),
+        superBottom = Math.max(coords.b, ajcBottom),
+        superHeight = superBottom - superTop,
+        //scrolling
+        minScrollTop = ajcTop - 20,
+        maxScrollTop = ajcBottom + 20 - vpHeight;
 
       // everything is fitting, no need to jump
       if (superTop >= vpScrollTop && superBottom <= vpScrollTop + vpHeight) {
         return ;
       }
 
-      // Control heigher than viewport?
+      // Dialog heigher than viewport?
       if (ajcHeight >= vpHeight) {
         window.scroll(0, ajcTop - 20); // align to control top
         return ;
@@ -553,7 +558,7 @@ Aj.Control = (function(){
         return ;
       }
 
-      Aj.Control.attachToExpose(_trbl);
+      Aj.Dialog.attachToExpose(_trbl);
     },
 
     /**
@@ -564,20 +569,14 @@ Aj.Control = (function(){
      * Just make sure your html contains the right id's so the tour content can be set
      **/
     defaultTemplate: 
-       '<div id="ajControl">' +
-        '<table cellpadding="0" cellspacing="0">' +
-        '<tr id="ajControlNavi">' +
-          '<td id="ajPlayerCell">' +
-            '<a id="ajPrev" class="{prevClass}" href="javascript:;" onclick="this.blur();Aj.Control.prev();return false;"><span>{textPrev}</span></a>' +
-            '<span id="ajCount"><span id="ajCurrentStep">{currentStep}</span> {textOf} <span id="ajStepCount">{stepCount}</span></span>' +
-            '<a id="ajNext" class="{nextClass}" href="javascript:;" onclick="this.blur();Aj.Control.next();return false;"><span>{textNext}</span></a>' +
-          '</td>' +
-          '<td id="ajCloseCell">' +
-            '<a id="ajClose" href="javascript:;" onclick="Aj.close();return false"><span>{textClose}</span></a>' +
-          '</td>' +
-        '</tr>' +
-        '<tr id="ajControlBody"><td colspan="2">{body}</td></tr>' +
-        '</table>' +
+      '<div id="ajDialog">' +
+        '<div id="dialogHead">' +
+          '<a id="ajPrev" class="{prevClass}" href="javascript:;" onclick="this.blur();Aj.Dialog.prev();return false;"><span>{textPrev}</span></a>' +
+          '<span id="ajCount"><span id="ajCurrentStep">{currentStep}</span> {textOf} <span id="ajStepCount">{stepCount}</span></span>' +
+          '<a id="ajNext" class="{nextClass}" href="javascript:;" onclick="this.blur();Aj.Dialog.next();return false;"><span>{textNext}</span></a>' +
+          '<a id="ajClose" href="javascript:;" onclick="Aj.close();return false">{textClose}</a>' +
+        '</div>' +
+        '<div id="ajDialogBody">{body}</div>' +
       '</div>'
     
   };
@@ -585,7 +584,7 @@ Aj.Control = (function(){
 
 
 Aj.Expose = (function(){
-  var _element  = null,  // jquery selector MUST return dom el
+  var _element  = null,  // jquery selector MUST return array of dom elements from which the first el is taken
   _padding      = 0,
   _coords       = [],
   _position     = null;
@@ -594,7 +593,7 @@ Aj.Expose = (function(){
    * calculate coordinates for the help elements
    * */
   function _calcCoords() {
-  // use the first element jQuery finds
+    // use the first element jQuery finds
     var el = jQuery(_element)[0],
     coords = {};
     coords.t = Ajt.getTop(el)     - _padding;
@@ -612,7 +611,7 @@ Aj.Expose = (function(){
       var cover       = document.createElement('div');
       cover.id        = 'ajCoverTop';
       cover.className = 'ajCover';
-      if (Aj.mouseNav) { cover.onclick = Aj.Control.next; };
+      if (Aj.mouseNav) { cover.onclick = Aj.Dialog.next; };
       document.body.appendChild(cover);
     }
 
@@ -627,7 +626,7 @@ Aj.Expose = (function(){
       var cover       = document.createElement('div');
       cover.id        = 'ajCoverBottom';
       cover.className = 'ajCover';
-      if (Aj.mouseNav) { cover.onclick = Aj.Control.next;  }
+      if (Aj.mouseNav) { cover.onclick = Aj.Dialog.next;  }
       document.body.appendChild(cover);
     }
     var top = Math.max(0, _coords.b);
@@ -646,7 +645,7 @@ Aj.Expose = (function(){
       var cover       = document.createElement('div');
       cover.id        = 'ajCoverLeft';
       cover.className = 'ajCover';
-      if (Aj.mouseNav) { cover.onclick = Aj.Control.next;  }
+      if (Aj.mouseNav) { cover.onclick = Aj.Dialog.next;  }
       document.body.appendChild(cover);
     }
 
@@ -663,7 +662,7 @@ Aj.Expose = (function(){
       var cover             = document.createElement('div');
       cover.id              = 'ajCoverRight';
       cover.className       = 'ajCover';
-      if (Aj.mouseNav) { cover.onclick = Aj.Control.next; }
+      if (Aj.mouseNav) { cover.onclick = Aj.Dialog.next; }
       document.body.appendChild(cover);
     }
 
@@ -680,7 +679,7 @@ Aj.Expose = (function(){
       var cover = document.createElement('div');
       cover.id  = 'ajExposeCover';
       if (Aj.mouseNav) {
-        cover.onclick = Aj.Control.next;
+        cover.onclick = Aj.Dialog.next;
       }
       document.body.appendChild(cover);
     }
@@ -693,7 +692,7 @@ Aj.Expose = (function(){
 
   function _drawCover() {
     if (Aj.mouseNav) {
-      document.body.oncontextmenu = function(){Aj.Control.prev();return false};
+      document.body.oncontextmenu = function(){Aj.Dialog.prev();return false};
     }
     _drawTopCover();
     _drawBottomCover();
@@ -704,7 +703,7 @@ Aj.Expose = (function(){
 
   return {
     expose: function(element, padding, position) {
-      _element       = element;
+      _element  = element;
       _padding  = padding;
       _coords   = _calcCoords();
       _position = position || 'absolute';
@@ -763,8 +762,6 @@ Ajt = {
   getTop: function(el) {
     if (el.offsetParent){ return el.offsetTop + Ajt.getTop(el.offsetParent); }
     return el.offsetTop;
-//        if (el.offsetParent){ return $(el).offset().top + Ajt.getTop(el.offsetParent); }
-//    return $(el).offset().top;
   },
 
   getRight: function(el) {
@@ -833,23 +830,7 @@ Ajt = {
     return (inner >= height) ? inner : height;
   },
 
-  /**
-   * Checks if passed href(String) is *included* in current location's href
-   *
-   * @param href URL to be matched against
-   *
-   * @example
-   *  Ajt.urlMatch('http://mysite.com/domains/')
-   *  Ajt.urlMatch('/domains')
-   */
-  urlMatch: function(href) {
-    var re = new RegExp(''+href+'', "g");
-    return re.test(location.href) > 0;
-
-  },
-
-
-  /**
+   /**
    * Returns url param value
    *
    * @param url The url to be queried
@@ -867,7 +848,6 @@ Ajt = {
       return false;
     }
 
-    var urlQuery = urlSplit[1];
     var paramsSplit = urlSplit[1].split('&');
     for (var i = 0; i < paramsSplit.length; i++) {
       var paramSplit = paramsSplit[i].split('=');
@@ -892,7 +872,7 @@ Ajt = {
    * tags are only inserted once per url
    */
 
-  postFetch: function(url, type, onerror) {
+  postFetch: function(url, type) {
     var scriptOrStyle = null;
 
     if (type === 'script') {
@@ -910,7 +890,6 @@ Ajt = {
       }
     }
 
-    if (onerror) { scriptOrStyle.onerror = onerror; }
     if(scriptOrStyle != null){
       document.getElementsByTagName('head')[0].appendChild(scriptOrStyle); // head MUST be present, else js error
     }
@@ -918,6 +897,6 @@ Ajt = {
   }
 };
 
-setTimeout(function(){
+setTimeout( function(){
   Aj.open(); // call Aj.open() to catch possibly set url params
 }, 500);

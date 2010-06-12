@@ -19,6 +19,11 @@ and some more from the original version(be careful since the tour definition mar
 
 == Changes
 
+2010.06.12
+* renamed Aj.Control to Aj.Dialog
+* replaced table in help dialog with div's 
+* more jQuery usage
+
 2010.06.01
 * removed hardcoded bubble template from skins folder
 * tour bubble templates can now be set via Aj.template. If not set a default html snippet will be used
