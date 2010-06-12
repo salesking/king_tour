@@ -1,6 +1,5 @@
 /**
  * Amberjack's main class
- * @author Arash Yalpani
  */
 
 KingTour = (function(){
@@ -46,14 +45,14 @@ KingTour = (function(){
    * Returns the tourDef DOM element (or false)
    */
   function _getTourDef(tourId) {
-    var tourDefElements = jQuery('div.ajTourDef');
-    for (i = 0; i < tourDefElements.length; i++) {
+    var tourDefElements = jQuery(KingTour.tourSel);
+    // iterate over the dom el inside the tour definition
+    for ( var i = 0; i < tourDefElements.length; i++) {
       if (tourDefElements[i].getAttribute('id') == tourId) {
         return tourDefElements[i];
       }
     }
-
-    KingToolz.alert('DIV with CLASS "ajTourDef" and ID "' + tourId + '" is not defined');
+    KingToolz.alert('Sorry Babe, the King cannot find a Dom element with Selector"' + KingTour.tourSel + '" and ID "' + tourId + '" .. fire up firebug');
     return false;
   }
 
@@ -112,8 +111,11 @@ KingTour = (function(){
     _resetHash.mouseNav           = KingTour.mouseNav;
     _resetHash.urlPassTourParams  = KingTour.urlPassTourParams;
     _resetHash.currentStep        = 0;
-    _resetHash.dialogSel          = KingTour.dialogClass;
+    _resetHash.dialogSel          = KingTour.dialogSel;
     _resetHash.dialogBodySel      = KingTour.dialogBodySel ;
+    _resetHash.prevSel            = KingTour.prevSel ;
+    _resetHash.nextSel            = KingTour.nextSel ;
+    _resetHash.tourSel            = KingTour.tourSel ;
   }
 
   function _doResetValues() {
@@ -121,14 +123,17 @@ KingTour = (function(){
     KingTour.textClose          = _resetHash.textClose;
     KingTour.textPrev           = _resetHash.textPrev;
     KingTour.textNext           = _resetHash.textNext;
-    KingTour.dialogClass           = _resetHash.dialogSel;
-    KingTour.dialogBodySel      = _resetHash.dialogBodySel;
-    
     KingTour.onCloseClickStay   = _resetHash.onCloseClickStay;
     KingTour.doCoverBody        = _resetHash.doCoverBody;
-    KingTour.mouseNav   = _resetHash.mouseNav;
+    KingTour.mouseNav           = _resetHash.mouseNav;
     KingTour.urlPassTourParams  = _resetHash.urlPassTourParams;
     KingTour.__currentStep      = _resetHash.currentStep;
+    KingTour.dialogSel          = _resetHash.dialogSel;
+    KingTour.dialogBodySel      = _resetHash.dialogBodySel;
+    KingTour.prevSel            = _resetHash.prevSel;
+    KingTour.nextSel            = _resetHash.nextSel;
+    KingTour.tourSel            = _resetHash.tourSel;
+
   }
 
   return {
@@ -153,10 +158,13 @@ KingTour = (function(){
                                //     template. the tourId and skindId params will not get passed on prev/next button click
     openCallback : null,      // callback to be executed on open
     closeCallback : null,     // callback to be executed on close
-    // jQuery selector for modal popup.
+    // jQuery selectors for modal popup and soem of its content elements. Set those yourself if you have custom html/css for the dialog box.
     // The default dialog template inserts a div with this id. The selector is used for the modal to be inserted and closed
-    dialogSel         : '#ktDialog',
-    dialogBodySel         : '#ktDialogBody',
+    dialogSel     : '#kDialog',
+    dialogBodySel : '#kDialogBody',
+    prevSel       : '#kPrev',
+    nextSel       : '#kNext',
+    tourSel       : '.kTour',
 
     // protected attributes - don't touch (used by other KingTour.* classes)
     __steps             : [],
@@ -211,7 +219,7 @@ KingTour = (function(){
       if (typeof KingTour.openCallback == 'function') { KingTour.openCallback(KingTour); }
       //append mouse click event to go to next dialog
       if (KingTour.mouseNav) {
-        jQuery('.ajCover, #ajExposeCover').live('click', function(){
+        jQuery('.kCover, #kExposeCover').live('click', function(){
           KingTour.Dialog.next;
         });
       }
@@ -224,20 +232,20 @@ KingTour = (function(){
     },
 
     redrawEverything: function() {
-      //set prev/next class for buttons
-      jQuery('#ajPrev, #ajNext').removeClass();
+      //set disabled class for prev/next buttons
+      jQuery('' + KingTour.prevSel + ', ' + KingTour.nextSel + '').removeClass();
       if (KingTour.__currentStep == 0) {
-        jQuery('#ajPrev').addClass('disabled');
+        jQuery(KingTour.prevSel).addClass('disabled');
       }
       if (KingTour.__currentStep == KingTour.__steps.length - 1) {
-        jQuery('#ajNext').addClass('disabled');
+        jQuery(KingTour.nextSel).addClass('disabled');
       }
 
       var ajc = KingTour.__steps[ KingTour.__currentStep ];
       // set bubble content to current step content
       jQuery(KingTour.dialogBodySel).html(ajc.body);
       //set current step number
-      jQuery('#ajCurrentStep').text( KingTour.__currentStep + 1 );
+      jQuery('#kCurrentStep').text( KingTour.__currentStep + 1 );
       KingTour.Expose.expose(ajc.el, ajc.padding, ajc.position);
       KingTour.Dialog.attachToExpose(ajc.trbl);
       KingTour.Dialog.ensureVisibility();
@@ -260,7 +268,7 @@ KingTour = (function(){
       _doResetValues();
       _reset_keyboard();
       //kick all markup
-      jQuery('' + KingTour.dialogSel + ', .ajCover, #ajArrow, #ajExposeCover').remove();
+      jQuery('' + KingTour.dialogSel + ', .kCover, #kArrow, #kExposeCover').remove();
       //stay in here
       if (KingTour.onCloseClickStay) {  return null; }
       //go to the closeUrl if present
@@ -304,9 +312,9 @@ KingTour.Dialog = (function(){
 
   function _drawArrow(topLeft, position, trbl) {
     //add arrow div if not present
-    var arrow = ( jQuery('#ajArrow').length == 0 )
-    ? jQuery('<div id="ajArrow"></div>').appendTo("body")
-    : jQuery('#ajArrow');
+    var arrow = ( jQuery('#kArrow').length == 0 )
+    ? jQuery('<div id="kArrow"></div>').appendTo("body")
+    : jQuery('#kArrow');
     arrow.css({
       'position' : position,
       'top' : topLeft.top + 'px',
@@ -332,7 +340,7 @@ KingTour.Dialog = (function(){
       
       // No URL was set AND no click-close-action was configured:
       if (!KingTour.closeUrl && !KingTour.onCloseClickStay) {
-        jQuery('#ajClose').hide();
+        jQuery('#kClose').hide();
       }
       // post fetch a CSS file you can define by setting KingTour.ADD_STYLE
       // right before the call to KingTour.open();
@@ -572,14 +580,14 @@ KingTour.Dialog = (function(){
      * Just make sure your html contains the right id's so the tour content can be set
      **/
     defaultTemplate: 
-      '<div id="ktDialog">' +
-        '<div id="dialogHead">' +
-          '<a id="ajPrev" class="{prevClass}" href="javascript:;" onclick="this.blur();KingTour.Dialog.prev();return false;"><span>{textPrev}</span></a>' +
-          '<span id="ajCount"><span id="ajCurrentStep">{currentStep}</span> {textOf} <span id="ajStepCount">{stepCount}</span></span>' +
-          '<a id="ajNext" class="{nextClass}" href="javascript:;" onclick="this.blur();KingTour.Dialog.next();return false;"><span>{textNext}</span></a>' +
-          '<a id="ajClose" href="javascript:;" onclick="KingTour.close();return false">{textClose}</a>' +
+      '<div id="kDialog">' +
+        '<div id="kDialogHead">' +
+          '<a id="kPrev" href="javascript:;" onclick="this.blur();KingTour.Dialog.prev();return false;"><span>{textPrev}</span></a>' +
+          '<span id="kCount"><span id="kCurrentStep">{currentStep}</span> {textOf} <span id="kStepCount">{stepCount}</span></span>' +
+          '<a id="kNext" href="javascript:;" onclick="this.blur();KingTour.Dialog.next();return false;"><span>{textNext}</span></a>' +
+          '<a id="kClose" href="javascript:;" onclick="KingTour.close();return false">{textClose}</a>' +
         '</div>' +
-        '<div id="ktDialogBody">{body}</div>' +
+        '<div id="kDialogBody">{body}</div>' +
       '</div>'
     
   };
@@ -609,9 +617,9 @@ KingTour.Expose = (function() {
   }
 
   function _drawTopCover() {
-    var cover = ( 0 === jQuery('#ajCoverTop').length )
-                ? jQuery('<div id="ajCoverTop" class="ajCover"></div>').appendTo("body")
-                : jQuery('#ajCoverTop');
+    var cover = ( 0 === jQuery('#kCoverTop').length )
+                ? jQuery('<div id="kCoverTop" class="kCover"></div>').appendTo("body")
+                : jQuery('#kCoverTop');
     var height = Math.max(0, _coords.t);
     cover.css({
       'position' : _position,
@@ -621,9 +629,9 @@ KingTour.Expose = (function() {
   }
 
   function _drawBottomCover() {
-    var cover = ( 0 === jQuery('#ajCoverBottom').length )
-                ? jQuery('<div id="ajCoverBottom" class="ajCover"></div>').appendTo("body")
-                : jQuery('#ajCoverBottom');
+    var cover = ( 0 === jQuery('#kCoverBottom').length )
+                ? jQuery('<div id="kCoverBottom" class="kCover"></div>').appendTo("body")
+                : jQuery('#kCoverBottom');
     var top = Math.max(0, _coords.b);
     var height = (_position == 'fixed') 
                   ? Math.max(0, KingToolz.viewport().height - top) + 'px'
@@ -636,9 +644,9 @@ KingTour.Expose = (function() {
   }
 
   function _drawLeftCover() {
-    var cover = (jQuery('#ajCoverLeft').length == 0) 
-                  ? jQuery('<div id="ajCoverLeft" class="ajCover"></div>').appendTo("body")
-                  : jQuery('#ajCoverLeft');
+    var cover = (jQuery('#kCoverLeft').length == 0)
+                  ? jQuery('<div id="kCoverLeft" class="kCover"></div>').appendTo("body")
+                  : jQuery('#kCoverLeft');
 
     var width = Math.max(0, _coords.l);
     cover.css({
@@ -650,9 +658,9 @@ KingTour.Expose = (function() {
   }
 
   function _drawRightCover() {
-    var cover = (0 === jQuery('#ajCoverRight').length)
-                 ? jQuery('<div id="ajCoverRight" class="ajCover"></div>').appendTo("body")
-                 : jQuery('#ajCoverRight');
+    var cover = (0 === jQuery('#kCoverRight').length)
+                 ? jQuery('<div id="kCoverRight" class="kCover"></div>').appendTo("body")
+                 : jQuery('#kCoverRight');
     cover.css({
       'position' : _position,
       'top' : _coords.t + 'px',
@@ -662,9 +670,9 @@ KingTour.Expose = (function() {
   }
 
   function _drawExposeCover() {
-    var cover = ( 0 === jQuery('#ajExposeCover').length)
-                ? jQuery('<div id="ajExposeCover"></div>').appendTo("body")
-                : jQuery('#ajExposeCover');
+    var cover = ( 0 === jQuery('#kExposeCover').length)
+                ? jQuery('<div id="kExposeCover"></div>').appendTo("body")
+                : jQuery('#kExposeCover');
     cover.css({
       'position' : _position,
       'top' : _coords.t + 'px',

@@ -22,6 +22,8 @@ See example here: http://salesking.github.com/king_tour/
 == Changes
 
 2010.06.12
+* renamed to KingTour & adopted css
+* added options to set selectors for dialog popup & its content so custom html/css can be used in dialog template
 * renamed Aj.Control to Aj.Dialog
 * replaced table in help dialog with div's 
 * more jQuery usage
