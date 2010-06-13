@@ -1,11 +1,11 @@
 /**
- * Amberjack's main class
+ * KingTours's main class
  */
 
 KingTour = (function(){
 
   var _resetHash = {},
-  _existingOnresize = null; // reference to onresize method of window/document
+  _existingOnresize = null; // later used as reference to onresize method of window/document
 
   /**
    * Enables keys: space, escape, left, right, backspace & return
@@ -52,7 +52,8 @@ KingTour = (function(){
         return tourDefElements[i];
       }
     }
-    KingToolz.alert('Sorry Babe, the King cannot find a Dom element with Selector"' + KingTour.tourSel + '" and ID "' + tourId + '" .. fire up firebug');
+    KingToolz.alert('Sorry Babe, the King cannot find a Dom element with Selector"'
+                    + KingTour.tourSel + '" and ID "' + tourId + '" .. fire up firebug');
     return false;
   }
 
@@ -176,9 +177,8 @@ KingTour = (function(){
      * manually right after inclusion of this library. Don't forget to pass
      * tourId param through URL to show tour!
      *
-     * Iterates child DIVs of DIV.ajTourDef, extracts tour pages
-     *
-     * @author Arash Yalpani
+     * Iterates child DIVs of DIV.kTourDef or to whateber KingTour.tourSel is
+     * set and extracts tour pages
      *
      * @example KingTour.open()
      * Note that a HEAD tag needs to be existent in the current document
@@ -188,9 +188,9 @@ KingTour = (function(){
       // set KingTour.tourId
       KingTour.tourId = KingTour.tourId || KingToolz.getUrlParam(location.href, 'tourId');
       if (!KingTour.tourId) { return ; /* do nothing if no tourId is found */  }
-
+      //remember settings
       _saveResetValues();
-
+      //grad the tour definition
       var tourDef = _getTourDef(KingTour.tourId);
       KingTour.__steps  = _transformTourDefToSteps(tourDef);
 
@@ -241,13 +241,13 @@ KingTour = (function(){
         jQuery(KingTour.nextSel).addClass('disabled');
       }
 
-      var ajc = KingTour.__steps[ KingTour.__currentStep ];
+      var step = KingTour.__steps[ KingTour.__currentStep ];
       // set bubble content to current step content
-      jQuery(KingTour.dialogBodySel).html(ajc.body);
+      jQuery(KingTour.dialogBodySel).html(step.body);
       //set current step number
       jQuery('#kCurrentStep').text( KingTour.__currentStep + 1 );
-      KingTour.Expose.expose(ajc.el, ajc.padding, ajc.position);
-      KingTour.Dialog.attachToExpose(ajc.trbl);
+      KingTour.Expose.draw(step.el, step.padding, step.position);
+      KingTour.Dialog.attachToExpose(step.pos);
       KingTour.Dialog.ensureVisibility();
     },
 
@@ -284,7 +284,7 @@ KingTour = (function(){
  */
 
 KingTour.Dialog = (function(){
-  var _trbl    = null;
+  var _pos    = null;
 
   function _fillTemplate() {
     var tpl_parsed = null,
@@ -301,25 +301,30 @@ KingTour.Dialog = (function(){
     return tpl_parsed;
   }
 
+  /**
+   * Set the coordinates of the dialog
+   */
   function _setCoords(coords, position) {
-    var el = jQuery(KingTour.dialogSel)[0];
-    el.style.top      = coords.top      || 'auto';
-    el.style.right    = coords.right    || 'auto';
-    el.style.bottom   = coords.bottom   || 'auto';
-    el.style.left     = coords.left     || 'auto';
-    el.style.position = position        || 'static';
+    var el = jQuery(KingTour.dialogSel);
+    el.css({
+      'position' : position || 'static',
+      'top' : coords.top || 'auto',
+      'right' : coords.right || 'auto',
+      'bottom' : coords.bottom || 'auto',
+      'left' :coords.left || 'auto'
+    });
   }
 
-  function _drawArrow(topLeft, position, trbl) {
+  function _drawArrow(topLeft, position, pos) {
     //add arrow div if not present
     var arrow = ( jQuery('#kArrow').length == 0 )
-    ? jQuery('<div id="kArrow"></div>').appendTo("body")
-    : jQuery('#kArrow');
+                  ? jQuery('<div id="kArrow"></div>').appendTo("body")
+                  : jQuery('#kArrow');
     arrow.css({
       'position' : position,
       'top' : topLeft.top + 'px',
       'left' : topLeft.left + 'px',
-      'background' : 'url(' + KingTour.BASE_URL + 'skins/' + KingTour.skinId.toLowerCase() + '/arr_' + trbl.charAt(0) + '.png)'
+      'background' : 'url(' + KingTour.BASE_URL + 'skins/' + KingTour.skinId.toLowerCase() + '/arr_' + pos.charAt(0) + '.png)'
     });
   }
 
@@ -425,101 +430,109 @@ KingTour.Dialog = (function(){
       window.location.href = nextUrl;
     },
 
-    attachToExpose: function(trbl) {
-      _trbl = trbl;
+    attachToExpose: function(pos) {
+      _pos = pos;
       var dialog = jQuery(KingTour.dialogSel)[0],
-      ajcWidth  = KingToolz.getWidth(dialog),
-      ajcHeight = KingToolz.getHeight(dialog),
-      coords    = KingTour.Expose.getCoords(),
-      position  = KingTour.Expose.getPosition(),
-      arrowTop    = 0,
-      arrowLeft   = 0,
-      controlTop  = 0,
-      controlLeft = 0;
-
-      switch (_trbl.charAt(0)) {
+          dWidth  = KingToolz.getWidth(dialog),
+          dHeight = KingToolz.getHeight(dialog),
+          coords    = KingTour.Expose.getCoords(),
+          position  = KingTour.Expose.getPosition(),
+          arrowTop    = 0,
+          arrowLeft   = 0,
+          controlTop  = 0,
+          controlLeft = 0;
+      // the arrow MUSt be a square of even size(devidable by 2) default 30x30
+      // half of the arrow
+      var arrowSize = 30;
+      //If the dialog has round borders the arrow cannot sit on the edges of the
+      //dialog and must be moved by the border size
+      var borderRadius = 8;
+      // Positioning of the dialog
+      switch (_pos.charAt(0)) {
       case 't':
-        arrowTop    = coords.t - 31;
-        controlTop  = coords.t - 15 - ajcHeight
+        //arrow css top taking its height into account, -1 for the dialog border
+        arrowTop    = coords.t - arrowSize -1;
+        //set css top taking dialog height and half arrow height into account (move up by hight+arrow Size)
+        controlTop  = coords.t - (arrowSize/2) - dHeight
         break;
       case 'b':
         arrowTop    = coords.b + 1;
-        controlTop  = coords.b + 15;
+        controlTop  = coords.b + (arrowSize/2);
         break;
       case 'l':
-        arrowLeft   = coords.l - 31;
-        controlLeft = coords.l - 15 - ajcWidth;
+        arrowLeft   = coords.l - arrowSize - 1;
+        controlLeft = coords.l - (arrowSize/2) - dWidth;
         break;
       case 'r':
         arrowLeft   = coords.r + 1;
-        controlLeft = coords.r + 15;
+        controlLeft = coords.r + (arrowSize/2);
         break;
       }
-
-      switch (_trbl.charAt(1)) {
+      // switch through Arrow position(second el) and with it the alignment of the dialog
+      switch (_pos.charAt(1)) {
       case 't':
         arrowTop    = coords.t;
         controlTop  = coords.t;
-        if (_trbl.charAt(2) && _trbl.charAt(2) == 't') {
-          controlTop  = coords.t - ajcHeight + 30;
+        if (_pos.charAt(2) && _pos.charAt(2) == 't') { //ltt, rtt
+          controlTop  = coords.t - dHeight + arrowSize + borderRadius;
         }
-        if (_trbl.charAt(2) && _trbl.charAt(2) == 'm') {
-          controlTop  = coords.t - ajcHeight / 2 + 15;
+        if (_pos.charAt(2) && _pos.charAt(2) == 'm') { //ltm rtm
+          controlTop  = coords.t - dHeight / 2 + arrowSize / 2;
         }
         break;
       case 'm':
-        arrowTop   = coords.t + coords.h / 2 - 15;
-        controlTop = coords.t + coords.h / 2 - ajcHeight / 2;
-        if (_trbl.charAt(2) && _trbl.charAt(2) == 't') {
-          controlTop  = arrowTop - ajcHeight + 30;
+        arrowTop   = coords.t + coords.h / 2 - arrowSize / 2;
+        controlTop = coords.t + coords.h / 2 - dHeight / 2;
+        if (_pos.charAt(2) && _pos.charAt(2) == 't') { //rmt, lmt
+          controlTop  = arrowTop - dHeight + arrowSize + borderRadius;
         }
-        if (_trbl.charAt(2) && _trbl.charAt(2) == 'b') {
-          controlTop  = arrowTop;
+        if (_pos.charAt(2) && _pos.charAt(2) == 'b') { //rmb, lmb
+          controlTop  = arrowTop - borderRadius;
         }
         break;
       case 'b':
-        arrowTop    = coords.b - 30;
-        controlTop  = coords.b - ajcHeight;
-        if (_trbl.charAt(2) && _trbl.charAt(2) == 'b') {
-          controlTop  = coords.b - 30;
+        arrowTop    = coords.b - arrowSize;
+        controlTop  = coords.b - dHeight;
+        if (_pos.charAt(2) && _pos.charAt(2) == 'b') { //rbb, lbb,
+          controlTop  = coords.b - arrowSize - borderRadius;
         }
-        if (_trbl.charAt(2) && _trbl.charAt(2) == 'm') {
-          controlTop  = coords.b - ajcHeight / 2 - 15;
+        if (_pos.charAt(2) && _pos.charAt(2) == 'm') { //rbm, lbm
+          controlTop  = coords.b - dHeight / 2 - ( arrowSize / 2 );
         }
         break;
       case 'l':
         arrowLeft   = coords.l;
         controlLeft = coords.l;
-        if (_trbl.charAt(2) && _trbl.charAt(2) == 'l') {
-          controlLeft = coords.l - ajcWidth + 30;
+        if (_pos.charAt(2) && _pos.charAt(2) == 'l') { //tll, bll
+          controlLeft = coords.l - dWidth + arrowSize + borderRadius;
         }
-        if (_trbl.charAt(2) && _trbl.charAt(2) == 'c') {
-          controlLeft = coords.l - ajcWidth / 2 + 15;
+        if (_pos.charAt(2) && _pos.charAt(2) == 'c') { // tlc, blc
+          controlLeft = coords.l - dWidth / 2 + ( arrowSize / 2 );
         }
         break;
       case 'c':
-        arrowLeft   = coords.l + coords.w / 2 - 15;
-        controlLeft = coords.l + coords.w / 2 - ajcWidth / 2;
-        if (_trbl.charAt(2) && _trbl.charAt(2) == 'l') {
-          controlLeft = arrowLeft - ajcWidth + 30;
+        arrowLeft   = coords.l + coords.w / 2 - ( arrowSize / 2 );
+        controlLeft = coords.l + coords.w / 2 - dWidth / 2;
+        if (_pos.charAt(2) && _pos.charAt(2) == 'l') { //tcl, bcl
+          controlLeft = arrowLeft - dWidth + arrowSize + borderRadius;
         }
-        if (_trbl.charAt(2) && _trbl.charAt(2) == 'r') {
-          controlLeft = arrowLeft;
+        if (_pos.charAt(2) && _pos.charAt(2) == 'r') { //tcr, bcr
+          controlLeft = arrowLeft - borderRadius;
         }
         break;
       case 'r':
-        arrowLeft   = coords.r - 30;
-        controlLeft = coords.r - ajcWidth;
-        if (_trbl.charAt(2) && _trbl.charAt(2) == 'r') {
-          controlLeft = coords.r - 30;
+        arrowLeft   = coords.r - arrowSize;
+        controlLeft = coords.r - dWidth;
+        if (_pos.charAt(2) && _pos.charAt(2) == 'r') { //trr, brr
+          controlLeft = coords.r - arrowSize - borderRadius;
         }
-        if (_trbl.charAt(2) && _trbl.charAt(2) == 'c') {
-          controlLeft = coords.r - ajcWidth / 2 - 15;
+        if (_pos.charAt(2) && _pos.charAt(2) == 'c') { //trc, brc
+          controlLeft = coords.r - dWidth / 2 - ( arrowSize / 2 );
         }
         break;
       }
 
-      _drawArrow({top: arrowTop, left: arrowLeft}, position, _trbl);
+      _drawArrow({top: arrowTop, left: arrowLeft}, position, _pos);
       _setCoords({
         top:  controlTop  + 'px',
         left: controlLeft + 'px'
@@ -532,19 +545,19 @@ KingTour.Dialog = (function(){
       }
 
       var dialog   = jQuery(KingTour.dialogSel)[0],
-        ajcTop      = KingToolz.getTop(dialog),
-        ajcHeight   = KingToolz.getHeight(dialog),
-        ajcBottom   = KingToolz.getBottom(dialog),
+        dTop      = KingToolz.getTop(dialog),
+        dHeight   = KingToolz.getHeight(dialog),
+        dBottom   = KingToolz.getBottom(dialog),
         vpScrollTop = KingToolz.viewport().scrollTop,
         vpHeight    = KingToolz.viewport().height,
         // coordinates
         coords = KingTour.Expose.getCoords(),
-        superTop    = Math.min(coords.t, ajcTop),
-        superBottom = Math.max(coords.b, ajcBottom),
+        superTop    = Math.min(coords.t, dTop),
+        superBottom = Math.max(coords.b, dBottom),
         superHeight = superBottom - superTop,
         //scrolling
-        minScrollTop = ajcTop - 20,
-        maxScrollTop = ajcBottom + 20 - vpHeight;
+        minScrollTop = dTop - 20,
+        maxScrollTop = dBottom + 20 - vpHeight;
 
       // everything is fitting, no need to jump
       if (superTop >= vpScrollTop && superBottom <= vpScrollTop + vpHeight) {
@@ -552,24 +565,24 @@ KingTour.Dialog = (function(){
       }
 
       // Dialog heigher than viewport?
-      if (ajcHeight >= vpHeight) {
-        window.scroll(0, ajcTop - 20); // align to control top
+      if (dHeight >= vpHeight) {
+        window.scroll(0, dTop - 20); // align to control top
         return ;
       }
 
-      var scrollTo = (ajcBottom == superBottom) 
-                      ? superBottom - vpHeight + 2 /* trbl = b */
+      var scrollTo = (dBottom == superBottom) 
+                      ? superBottom - vpHeight + 2 /* pos = b */
                       : superTop - 20;
     
       window.scroll(0, Math.max(maxScrollTop, Math.min(minScrollTop, scrollTo)));
     },
 
     refresh: function() {
-      if (!_trbl) {
+      if (!_pos) {
         return ;
       }
 
-      KingTour.Dialog.attachToExpose(_trbl);
+      KingTour.Dialog.attachToExpose(_pos);
     },
 
     /**
@@ -616,7 +629,7 @@ KingTour.Expose = (function() {
     return coords;
   }
 
-  function _drawTopCover() {
+  function _drawTop() {
     var cover = ( 0 === jQuery('#kCoverTop').length )
                 ? jQuery('<div id="kCoverTop" class="kCover"></div>').appendTo("body")
                 : jQuery('#kCoverTop');
@@ -628,7 +641,7 @@ KingTour.Expose = (function() {
     });
   }
 
-  function _drawBottomCover() {
+  function _drawBottom() {
     var cover = ( 0 === jQuery('#kCoverBottom').length )
                 ? jQuery('<div id="kCoverBottom" class="kCover"></div>').appendTo("body")
                 : jQuery('#kCoverBottom');
@@ -643,7 +656,7 @@ KingTour.Expose = (function() {
     });
   }
 
-  function _drawLeftCover() {
+  function _drawLeft() {
     var cover = (jQuery('#kCoverLeft').length == 0)
                   ? jQuery('<div id="kCoverLeft" class="kCover"></div>').appendTo("body")
                   : jQuery('#kCoverLeft');
@@ -657,7 +670,7 @@ KingTour.Expose = (function() {
     });
   }
 
-  function _drawRightCover() {
+  function _drawRight() {
     var cover = (0 === jQuery('#kCoverRight').length)
                  ? jQuery('<div id="kCoverRight" class="kCover"></div>').appendTo("body")
                  : jQuery('#kCoverRight');
@@ -669,7 +682,7 @@ KingTour.Expose = (function() {
     });
   }
 
-  function _drawExposeCover() {
+  function _drawHighlight() {
     var cover = ( 0 === jQuery('#kExposeCover').length)
                 ? jQuery('<div id="kExposeCover"></div>').appendTo("body")
                 : jQuery('#kExposeCover');
@@ -686,15 +699,16 @@ KingTour.Expose = (function() {
     if (KingTour.mouseNav) { // add previous navigation if right mouse is clicked
       document.body.oncontextmenu = function(){KingTour.Dialog.prev();return false};
     }
-    _drawTopCover();
-    _drawBottomCover();
-    _drawLeftCover();
-    _drawRightCover();
-    _drawExposeCover();
+    _drawTop();
+    _drawBottom();
+    _drawLeft();
+    _drawRight();
+    _drawHighlight();
   }
 
+  // KingTour.Expose public class functions
   return {
-    expose: function(element, padding, position) {
+    draw: function(element, padding, position) {
       _element  = element;
       _padding  = padding;
       _coords   = _calcCoords();

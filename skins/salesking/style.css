@@ -28,6 +28,7 @@
 #kExposeCover {z-index:10000;-moz-opacity:0;filter:alpha(opacity=0);opacity:0;-khtml-opacity:0;background:blue}
 
 /* dialog content */
-#kDialogBody h3 {color: #efefef; margin: 3px 0;}
+#kDialogBody h3,
+#kDialogBody h4 {color: #efefef; margin: 3px 0;}
 #kDialogBody ul {margin: 3px 0 3px 5px;}
 #kDialogBody ul li{list-style: disc inside;}
