@@ -22,13 +22,16 @@
 		h1 .small { font-size: 0.4em; }
 		h1 a { text-decoration: none }
 		h2 { font-size: 1.5em; color: #464646; }
-    h3 { text-align: center; color: #464646; }
+    h3 {  font-size: 1.3em; text-align: center; color: #464646; }
+    h4 {  font-size: 1.1em; text-align: center; color: #464646; }
     a { color: #BE3C1E; }
     .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
     .download { float: right; }
 		pre { background: #000; color: #fff; padding: 15px;}
     hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
     .footer { text-align:center; padding-top:30px; font-style: italic; }
+    /* dialog styles*/
+    #kDialog{ font-size: 1em;}
 	</style>
 	
 </head>
@@ -53,7 +56,15 @@
     </div>
 
     <h2>Try it out</h2>
-    <a class="starter" href="javascript:;" onclick="KingTour.onCloseClickStay = true; KingTour.tourId = 'defaultTour';KingTour.open();">Click here to give it a shot!</a> 
+    Click the following tours to give it a shot!
+    <ul>
+      <li>
+        <a class="starter" href="javascript:;" onclick="KingTour.onCloseClickStay = true; KingTour.tourId = 'defaultTour';KingTour.open();">This is a github project page</a> 
+      </li>
+      <li>
+        <a id="pos_tour_link" href="javascript:;" onclick="KingTour.onCloseClickStay = true; KingTour.tourId = 'posTour';KingTour.open();">Dialog positioning</a> 
+      </li>
+    </ul>
     <h2>Dependencies</h2>
     <p>jQuery</p>
     <h2>Authors</h2>
@@ -82,31 +93,163 @@
 <!-- On-page Tour Definition --> 
 <div class="kTour" id="defaultTour" style="display:none" title="http://salesking.github.com/king_tour/"> 
   <div title="http://salesking.github.com/king_tour/"> 
-    <div title="el:'h1',padding:15,trbl:'bcc'"> 
+    <div title="el:'h1',padding:15,pos:'bcc'"> 
       <p class="title">This is an example On-Page Tour</p> 
       <p> Navigate with space/backspace, keyboard right/left, mouse click left/right or by using the arrows inside the bubble</p>
       <p> Quit with ESC or the X in the bubble</p>
     </div> 
-    <div title="el:'.download',padding:5,trbl:'brl'"> 
+    <div title="el:'.download',padding:5,pos:'brl'"> 
       <p class="title">Download the source</p> 
       <p> Those two buttons allow downloading the project as zip or tar file</p>
     </div> 
-    <div title="el:'.fork_badge',padding:2,trbl:'lmb'"> 
+    <div title="el:'.fork_badge',padding:2,pos:'lmb'"> 
       <p class="title">Fork me here</p>
     </div> 
-    <div title="el:'.starter',padding:2,trbl:'rmb'"> 
+    <div title="el:'.starter',padding:2,pos:'rmb'"> 
       <p >You just started the tour here</p>
     </div> 
-    <div title="el:'.author',padding:2,trbl:'rmb'"> 
+    <div title="el:'.author',padding:2,pos:'rmb'"> 
       <p >It wasn't just me, my enhancements are based on Arash Yalpani's work on amberjack .. i did the jQuery-fication </p>
       <p >Thanks, Arash for your work!</p>
     </div> 
-    <div title="el:'pre',padding:5,trbl:'tcc'"> 
+    <div title="el:'pre',padding:5,pos:'tcc'"> 
       <p class="title">This is the command to clone the project, if you are familiar with git</p>
-    </div> 
-
+    </div>
   </div> 
-</div>   
+</div> 
+
+<div style="display: none;" id="posTour" class="kTour">
+  <div title="http://salesking.github.com/king_tour/">
+    <div title="padding:10, pos:'ltb', el:'#pos_tour_link'">
+      <h3>Dialog positioning</h3>
+      <p>
+        The dialog can easily be placed around an element. We go around clock-wise
+      </p>
+      <p>To place a dialog each tour step-div has an option "pos" in its title tag</p>
+      <p>"pos" is a tripple defining the position like this:</p>
+      <p>ltb - left-top-bottom</p>
+      <h4>1. Dialog position:</h4>
+      <p>t(op), r(ight), b(ottom), l(eft)</p>
+      <h4>2. Arrow position:</h4>
+      <p>t(top), m(middle), b(ottom)</p>
+      <p>OR with dialog on top/bottom</p>
+      <p>l(left), c(enter), r(right)</p>
+      <h4>3. Dialog alignment:</h4>
+      <p>t(op), m(middle), b(ottom)</p>
+      <p>OR with dialog on top/bottom</p>
+      <p>l(left), c(enter), r(right)</p>
+    </div>
+    <div title="padding:5, pos:'tll', el:'#pos_tour_link'">
+      <p>tll - top-left-left</p>
+    </div>
+    <div title="padding:5, pos:'tlc', el:'#pos_tour_link'">
+      <p>tlc - top-left-center</p>
+    </div>
+    <div title="padding:5, pos:'tlr', el:'#pos_tour_link'">
+      <p>tlr - top-left-right</p>
+    </div>
+    <div title="padding:5, pos:'tcl', el:'#pos_tour_link'">
+      <p>tcl - top-center-left</p>
+    </div>
+    <div title="padding:5, pos:'tcc', el:'#pos_tour_link'">
+      <p>tcc - top-center-center</p>
+    </div>
+    <div title="padding:5, pos:'tcr', el:'#pos_tour_link'">
+      <p>tcr - top-center-right</p>
+    </div>
+    <div title="padding:5, pos:'trl', el:'#pos_tour_link'">
+      <p>trl - top-right-left</p>
+    </div>
+    <div title="padding:5, pos:'trc', el:'#pos_tour_link'">
+      <p>trc - top-right-center</p>
+    </div>
+    <div title="padding:5, pos:'trr', el:'#pos_tour_link'">
+      <p>trr - top-right-right</p>
+    </div>
+    <div title="padding:5, pos:'rtt', el:'#pos_tour_link'">
+      <p>rtt - right-top-top</p>
+    </div>
+    <div title="padding:5, pos:'rtm', el:'#pos_tour_link'">
+      <p>rtm - right-top-middle</p>
+    </div>
+    <div title="padding:5, pos:'rtb', el:'#pos_tour_link'">
+      <p>rtb - right-top-bottom</p>
+    </div>
+    <div title="padding:5, pos:'rmt', el:'#pos_tour_link'">
+      <p>rmt - right-middle-top</p>
+    </div>
+    <div title="padding:5, pos:'rmm', el:'#pos_tour_link'">
+      <p>rmm - right-middle-middle</p>
+    </div>
+    <div title="padding:5, pos:'rmb', el:'#pos_tour_link'">
+      <p>rmb - right-middle-bottom</p>
+    </div>
+    <div title="padding:5, pos:'rbt', el:'#pos_tour_link'">
+      <p>rbt - right-bottom-top</p>
+    </div>
+    <div title="padding:5, pos:'rbm', el:'#pos_tour_link'">
+      <p>rbm - right-bottom-middle</p>
+    </div>
+    <div title="padding:5, pos:'rbb', el:'#pos_tour_link'">
+      <p>rbb - right-bottom-bottom</p>
+    </div>
+    <div title="padding:5, pos:'brr', el:'#pos_tour_link'">
+      <p>brr - bottom-right-right</p>
+    </div>
+    <div title="padding:5, pos:'brc', el:'#pos_tour_link'">
+      <p>brc - bottom-right-center</p>
+    </div>
+    <div title="padding:5, pos:'brl', el:'#pos_tour_link'">
+      <p>brl - bottom-right-left</p>
+    </div>
+    <div title="padding:5, pos:'bcr', el:'#pos_tour_link'">
+      <p>bcr - bottom-center-right</p>
+    </div>
+    <div title="padding:5, pos:'bcc', el:'#pos_tour_link'">
+      <p>bcc - bottom-center-center</p>
+    </div>
+    <div title="padding:5, pos:'bcl', el:'#pos_tour_link'">
+      <p>bcl - bottom-center-left</p>
+    </div>
+    <div title="padding:5, pos:'blr', el:'#pos_tour_link'">
+      <p>blr - bottom-left-right</p>
+    </div>
+    <div title="padding:5, pos:'blc', el:'#pos_tour_link'">
+      <p>blc - bottom-left-center</p>
+    </div>
+    <div title="padding:5, pos:'bll', el:'#pos_tour_link'">
+      <p>bll - bottom-left-left</p>
+    </div>
+    <div title="padding:5, pos:'lbb', el:'#pos_tour_link'">
+      <p>lbb - left-bottom-bottom</p>
+    </div>
+    <div title="padding:5, pos:'lbm', el:'#pos_tour_link'">
+      <p>lbm - left-bottom-middle</p>
+    </div>
+    <div title="padding:5, pos:'lbt', el:'#pos_tour_link'">
+      <p>lbt - left-bottom-top</p>
+    </div>
+    <div title="padding:5, pos:'lmb', el:'#pos_tour_link'">
+      <p>lmb - left-middle-bottom</p>
+    </div>
+    <div title="padding:5, pos:'lmm', el:'#pos_tour_link'">
+      <p>lmm - left-middle-middle</p>
+    </div>
+    <div title="padding:5, pos:'lmt', el:'#pos_tour_link'">
+      <p>lmt - left-middle-top</p>
+    </div>
+    <div title="padding:5, pos:'ltb', el:'#pos_tour_link'">
+      <p>ltb - left-top-bottom</p>
+    </div>
+    <div title="padding:5, pos:'ltm', el:'#pos_tour_link'">
+      <p>ltm - left-top-middle</p>
+    </div>
+    <div title="padding:5, pos:'ltt', el:'#pos_tour_link'">
+      <p>ltt - left-top-top</p>
+    </div>
+  </div>
+</div>
+
 
   <script type="text/javascript">
 var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
