@@ -30,6 +30,8 @@
 		pre { background: #000; color: #fff; padding: 15px;}
     hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
     .footer { text-align:center; padding-top:30px; font-style: italic; }
+    ul.box{ width: 600px; margin: 20px 0;}
+    .box li {width: 50px; heigth: 50px; border: 2px solid #ccc; margin: 10px; float:left; list-style:none; }
     /* dialog styles*/
     #kDialog{ font-size: 1em;}
 	</style>
@@ -57,7 +59,7 @@
 
     <h2>Try it out</h2>
     Click the following tours to give it a shot!
-    <ul>
+    <ul class='box'>
       <li>
         <a class="starter" href="javascript:;" onclick="KingTour.onCloseClickStay = true; KingTour.tourId = 'defaultTour';KingTour.open();">This is a github project page</a> 
       </li>
@@ -65,6 +67,7 @@
         <a id="pos_tour_link" href="javascript:;" onclick="KingTour.onCloseClickStay = true; KingTour.tourId = 'posTour';KingTour.open();">Dialog positioning</a> 
       </li>
     </ul>
+   
     <h2>Dependencies</h2>
     <p>jQuery</p>
     <h2>Authors</h2>
