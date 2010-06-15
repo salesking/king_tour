@@ -315,17 +315,78 @@ KingTour.Dialog = (function(){
     });
   }
 
-  function _drawArrow(topLeft, position, pos) {
-    //add arrow div if not present
-    var arrow = ( jQuery('#kArrow').length == 0 )
-                  ? jQuery('<div id="kArrow"></div>').appendTo("body")
-                  : jQuery('#kArrow');
-    arrow.css({
-      'position' : position,
-      'top' : topLeft.top + 'px',
-      'left' : topLeft.left + 'px',
-      'background' : 'url(' + KingTour.BASE_URL + 'skins/' + KingTour.skinId.toLowerCase() + '/arr_' + pos.charAt(0) + '.png)'
-    });
+  /**
+   * @param dHeight Integer dialog height
+   * @param dWidth Integer dialog width
+   * @param pos String position tripple => ltm
+  */
+  function _drawArrow(dHeight, dWidth, pos) {
+
+    // the arrow MUST be a square of even size(devidable by 2) default 16
+    // half of the arrow, also see css defs
+    var arrowSize = 16,
+      //If the dialog has round borders the arrow cannot sit on the edges of the
+      //dialog and is moved by the border radius
+      borderRadius = 8,
+      //arrow div, also responsible for outer border
+      arrow = jQuery('.arrow'),
+      //inner arrow, holds arrow bg-color
+      arrow_inner = jQuery('.arrow-inner'),
+      //hash applied to .css inline styles for arrow/inner divs
+      base_css = {},
+      dialogPos = pos.charAt(0), // fist char in position def => t b l r
+      dialogAlign = pos.charAt(2); // Third char in position def => m b t / l c r
+      //kick inline styles & classes, re-add base classes
+      arrow.removeAttr('style').removeClass().addClass('arrow') ;
+      arrow_inner.removeAttr('style').removeClass().addClass('arrow-inner');
+
+    switch (dialogPos) {
+      case 't': case 'b': //dialog on top / bottom
+        if (dialogPos === 't'){ 
+          arrow.addClass('arrow-down');
+          arrow_inner.addClass('arrow-inner-down');         
+        } else{ // bottom
+          arrow.addClass('arrow-up');
+          arrow_inner.addClass('arrow-inner-up');
+        }
+        // alignment under the bubble border-radius + right/center/right
+        switch (dialogAlign) {
+          case 'l': // left tl t
+            base_css['right'] = arrowSize - borderRadius + 'px';
+            break;
+          case 'c': // center
+            base_css['left'] = dWidth/2 - arrowSize + 'px';
+            break;
+          case 'r': // right
+            base_css['left'] = borderRadius + 'px';
+            break;
+        }
+        break;
+
+      case 'r': case 'l': // right, left aligned dialog
+        if (dialogPos === 'r'){ //
+          arrow.addClass('arrow-lft'); //arrow pointing left <
+          arrow_inner.addClass('arrow-inner-lft');
+        } else{ // left >
+          arrow.addClass('arrow-rgt');
+          arrow_inner.addClass('arrow-inner-rgt');
+        }
+        // alignment above the bubble border-radius + right/center/right
+        switch (dialogAlign) {
+          case 't': // top align dialog
+            base_css['bottom'] =  borderRadius + 'px';
+            break;
+          case 'm': // middle
+            base_css['top'] = (dHeight/2 - arrowSize) + 'px';             
+            break;
+          case 'b': // bottom
+            base_css['top'] = borderRadius + 'px';
+            break;
+        }
+        break;
+      }
+
+      arrow.css(base_css);
   }
 
   return {
@@ -471,7 +532,6 @@ KingTour.Dialog = (function(){
       // switch through Arrow position(second el) and with it the alignment of the dialog
       switch (_pos.charAt(1)) {
       case 't':
-        arrowTop    = coords.t;
         controlTop  = coords.t;
         if (_pos.charAt(2) && _pos.charAt(2) == 't') { //ltt, rtt
           controlTop  = coords.t - dHeight + arrowSize + borderRadius;
@@ -491,7 +551,6 @@ KingTour.Dialog = (function(){
         }
         break;
       case 'b':
-        arrowTop    = coords.b - arrowSize;
         controlTop  = coords.b - dHeight;
         if (_pos.charAt(2) && _pos.charAt(2) == 'b') { //rbb, lbb,
           controlTop  = coords.b - arrowSize - borderRadius;
@@ -532,7 +591,8 @@ KingTour.Dialog = (function(){
         break;
       }
 
-      _drawArrow({top: arrowTop, left: arrowLeft}, position, _pos);
+      _drawArrow(dHeight, dWidth, _pos);
+//      _drawArrow({top: arrowTop, left: arrowLeft}, position, _pos);
       _setCoords({
         top:  controlTop  + 'px',
         left: controlLeft + 'px'
@@ -601,6 +661,10 @@ KingTour.Dialog = (function(){
           '<a id="kClose" href="javascript:;" onclick="KingTour.close();return false">{textClose}</a>' +
         '</div>' +
         '<div id="kDialogBody">{body}</div>' +
+        '<div class="arrow">' +
+        '<div class="arrow-inner"></div>' +
+        '</div>'+
+
       '</div>'
     
   };
