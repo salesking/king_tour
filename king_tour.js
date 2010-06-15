@@ -316,32 +316,30 @@ KingTour.Dialog = (function(){
   }
 
   /**
+   * @param arrowSize Integer size of the arrow, actually set in css
+   * @param borderRadius Integer the dialog's order radius,
+   * If the dialog has round borders the arrow cannot sit on the edges of the
+   * dialog and is moved by the border radius
    * @param dHeight Integer dialog height
    * @param dWidth Integer dialog width
    * @param pos String position tripple => ltm
   */
-  function _drawArrow(dHeight, dWidth, pos) {
-
-    // the arrow MUST be a square of even size(devidable by 2) default 16
-    // half of the arrow, also see css defs
-    var arrowSize = 16,
-      //If the dialog has round borders the arrow cannot sit on the edges of the
-      //dialog and is moved by the border radius
-      borderRadius = 8,
+  function _drawArrow(arrowSize, borderRadius, dHeight, dWidth, pos) {
       //arrow div, also responsible for outer border
-      arrow = jQuery('.arrow'),
-      //inner arrow, holds arrow bg-color
-      arrow_inner = jQuery('.arrow-inner'),
-      //hash applied to .css inline styles for arrow/inner divs
-      base_css = {},
-      dialogPos = pos.charAt(0), // fist char in position def => t b l r
-      dialogAlign = pos.charAt(2); // Third char in position def => m b t / l c r
+      var arrow = jQuery('.arrow'),
+        //inner arrow, holds arrow bg-color
+        arrow_inner = jQuery('.arrow-inner'),
+        //hash applied to .css inline styles for arrow/inner divs
+        base_css = {},
+        dialogPos = pos.charAt(0), // fist char in position def => t b l r
+        dialogAlign = pos.charAt(2); // Third char in position def => m b t / l c r
       //kick inline styles & classes, re-add base classes
       arrow.removeAttr('style').removeClass().addClass('arrow') ;
       arrow_inner.removeAttr('style').removeClass().addClass('arrow-inner');
 
     switch (dialogPos) {
-      case 't': case 'b': //dialog on top / bottom
+       //dialog on top / bottom
+      case 't': case 'b':
         if (dialogPos === 't'){ 
           arrow.addClass('arrow-down');
           arrow_inner.addClass('arrow-inner-down');         
@@ -362,9 +360,9 @@ KingTour.Dialog = (function(){
             break;
         }
         break;
-
-      case 'r': case 'l': // right, left aligned dialog
-        if (dialogPos === 'r'){ //
+      // right, left aligned dialog
+      case 'r': case 'l':
+        if (dialogPos === 'r') { //
           arrow.addClass('arrow-lft'); //arrow pointing left <
           arrow_inner.addClass('arrow-inner-lft');
         } else{ // left >
@@ -385,7 +383,6 @@ KingTour.Dialog = (function(){
         }
         break;
       }
-
       arrow.css(base_css);
   }
 
@@ -496,107 +493,104 @@ KingTour.Dialog = (function(){
       var dialog = jQuery(KingTour.dialogSel)[0],
           dWidth  = KingToolz.getWidth(dialog),
           dHeight = KingToolz.getHeight(dialog),
-          coords    = KingTour.Expose.getCoords(),
+          coords  = KingTour.Expose.getCoords(),
           position  = KingTour.Expose.getPosition(),
-          arrowTop    = 0,
-          arrowLeft   = 0,
-          controlTop  = 0,
-          controlLeft = 0;
-      // the arrow MUSt be a square of even size(devidable by 2) default 30x30
-      // half of the arrow
-      var arrowSize = 30;
-      //If the dialog has round borders the arrow cannot sit on the edges of the
-      //dialog and must be moved by the border size
-      var borderRadius = 8;
-      // Positioning of the dialog
-      switch (_pos.charAt(0)) {
+          dialogPos = _pos.charAt(0),
+          arrowPos    = _pos.charAt(1),
+          dialogAlign = _pos.charAt(2),
+          dialogTop  = 0,
+          dialogLeft = 0,
+          // the arrow size is actually defined in css, but needed in here too for math
+          arrowSize = 16,
+          //If the dialog has round borders the arrow cannot sit on the edges of the
+          //dialog and must be moved by the border size, also definied in css
+          borderRadius = 8;
+
+      // Positioning of the dialog, around the exposed area
+      switch (dialogPos) {
       case 't':
-        //arrow css top taking its height into account, -1 for the dialog border
-        arrowTop    = coords.t - arrowSize -1;
-        //set css top taking dialog height and half arrow height into account (move up by hight+arrow Size)
-        controlTop  = coords.t - (arrowSize/2) - dHeight
+        //set css top taking dialog height and arrow height into account (move up by hight+arrow Size)
+        dialogTop  = coords.t - arrowSize - dHeight
         break;
       case 'b':
-        arrowTop    = coords.b + 1;
-        controlTop  = coords.b + (arrowSize/2);
+        dialogTop  = coords.b + arrowSize;
         break;
       case 'l':
-        arrowLeft   = coords.l - arrowSize - 1;
-        controlLeft = coords.l - (arrowSize/2) - dWidth;
+        dialogLeft = coords.l - arrowSize - dWidth;
         break;
       case 'r':
-        arrowLeft   = coords.r + 1;
-        controlLeft = coords.r + (arrowSize/2);
+        dialogLeft = coords.r + arrowSize;
         break;
       }
       // switch through Arrow position(second el) and with it the alignment of the dialog
-      switch (_pos.charAt(1)) {
-      case 't':
-        controlTop  = coords.t;
-        if (_pos.charAt(2) && _pos.charAt(2) == 't') { //ltt, rtt
-          controlTop  = coords.t - dHeight + arrowSize + borderRadius;
+      switch (arrowPos) {
+      case 't': // top rt lt
+        dialogTop  = coords.t - borderRadius; //rtb ltb
+        if (dialogAlign == 't') { //ltt, rtt
+          dialogTop  = coords.t - dHeight + arrowSize*2 + borderRadius;
         }
-        if (_pos.charAt(2) && _pos.charAt(2) == 'm') { //ltm rtm
-          controlTop  = coords.t - dHeight / 2 + arrowSize / 2;
-        }
-        break;
-      case 'm':
-        arrowTop   = coords.t + coords.h / 2 - arrowSize / 2;
-        controlTop = coords.t + coords.h / 2 - dHeight / 2;
-        if (_pos.charAt(2) && _pos.charAt(2) == 't') { //rmt, lmt
-          controlTop  = arrowTop - dHeight + arrowSize + borderRadius;
-        }
-        if (_pos.charAt(2) && _pos.charAt(2) == 'b') { //rmb, lmb
-          controlTop  = arrowTop - borderRadius;
+        if (dialogAlign == 'm') { //ltm rtm
+          dialogTop  = coords.t - dHeight / 2 + arrowSize;
         }
         break;
-      case 'b':
-        controlTop  = coords.b - dHeight;
-        if (_pos.charAt(2) && _pos.charAt(2) == 'b') { //rbb, lbb,
-          controlTop  = coords.b - arrowSize - borderRadius;
+      case 'm': // middle rm lm
+        var center = coords.t + coords.h / 2;
+        dialogTop = center - dHeight / 2;
+        if (dialogAlign == 't') { //rmt, lmt
+          dialogTop  = center - dHeight + arrowSize + borderRadius;
         }
-        if (_pos.charAt(2) && _pos.charAt(2) == 'm') { //rbm, lbm
-          controlTop  = coords.b - dHeight / 2 - ( arrowSize / 2 );
-        }
-        break;
-      case 'l':
-        arrowLeft   = coords.l;
-        controlLeft = coords.l;
-        if (_pos.charAt(2) && _pos.charAt(2) == 'l') { //tll, bll
-          controlLeft = coords.l - dWidth + arrowSize + borderRadius;
-        }
-        if (_pos.charAt(2) && _pos.charAt(2) == 'c') { // tlc, blc
-          controlLeft = coords.l - dWidth / 2 + ( arrowSize / 2 );
+        if (dialogAlign == 'b') { //rmb, lmb
+          dialogTop  = center - arrowSize - borderRadius;
         }
         break;
-      case 'c':
-        arrowLeft   = coords.l + coords.w / 2 - ( arrowSize / 2 );
-        controlLeft = coords.l + coords.w / 2 - dWidth / 2;
-        if (_pos.charAt(2) && _pos.charAt(2) == 'l') { //tcl, bcl
-          controlLeft = arrowLeft - dWidth + arrowSize + borderRadius;
+      case 'b': //rb lb bottom
+        dialogTop  = coords.b - dHeight + borderRadius; //rbt lbt
+        if (dialogAlign == 'b') { //rbb, lbb,
+          dialogTop = coords.b - arrowSize*2 - borderRadius;
         }
-        if (_pos.charAt(2) && _pos.charAt(2) == 'r') { //tcr, bcr
-          controlLeft = arrowLeft - borderRadius;
+        if (dialogAlign == 'm') { //rbm, lbm
+          dialogTop  = coords.b - dHeight / 2 - arrowSize;
         }
         break;
-      case 'r':
-        arrowLeft   = coords.r - arrowSize;
-        controlLeft = coords.r - dWidth;
-        if (_pos.charAt(2) && _pos.charAt(2) == 'r') { //trr, brr
-          controlLeft = coords.r - arrowSize - borderRadius;
+      case 'l': // left tlr tlc tll blr bll blc
+        dialogLeft = coords.l - borderRadius;// tlr, blr
+        if (dialogAlign == 'l') { //tll, bll
+          dialogLeft = coords.l - dWidth + arrowSize*2 + borderRadius;
         }
-        if (_pos.charAt(2) && _pos.charAt(2) == 'c') { //trc, brc
-          controlLeft = coords.r - dWidth / 2 - ( arrowSize / 2 );
+        if ( dialogAlign == 'c') { // tlc, blc
+          dialogLeft = coords.l - dWidth / 2 + arrowSize;
+        }       
+        break;
+      case 'c': // center tcl, tcr, bcl , bcr
+        var center = coords.l + coords.w/2; //left val of expose - half exposed width
+        dialogLeft = center - dWidth / 2; //tcc, bcc
+        if (dialogAlign == 'l') { //tcl bcl
+          dialogLeft = center - dWidth + arrowSize + borderRadius;
+        }
+        if (dialogAlign == 'r') { //tcr bcr
+          dialogLeft = center - arrowSize - borderRadius;
+        }
+        break;
+      case 'r': //right trl trc trr brl brr brc
+        dialogLeft = coords.r - dWidth + borderRadius; // trl
+        if (dialogAlign == 'r') { //trr brr
+          dialogLeft = coords.r - arrowSize*2 - borderRadius;
+        }
+        if (dialogAlign == 'c') { //trc brc
+          dialogLeft = coords.r - dWidth / 2 - arrowSize;
         }
         break;
       }
-
-      _drawArrow(dHeight, dWidth, _pos);
-//      _drawArrow({top: arrowTop, left: arrowLeft}, position, _pos);
-      _setCoords({
-        top:  controlTop  + 'px',
-        left: controlLeft + 'px'
-      }, position);
+      //set css for the arrow
+      _drawArrow(arrowSize, borderRadius, dHeight, dWidth, _pos);
+      //set top/left positions for the dialog
+      jQuery(dialog).css({
+        'position' : position || 'static',
+        'top' : dialogTop  + 'px',
+        'left' : dialogLeft + 'px',
+        'right' : 'auto',
+        'bottom' : 'auto'
+      });
     },
 
     ensureVisibility: function() {
@@ -614,7 +608,6 @@ KingTour.Dialog = (function(){
         coords = KingTour.Expose.getCoords(),
         superTop    = Math.min(coords.t, dTop),
         superBottom = Math.max(coords.b, dBottom),
-        superHeight = superBottom - superTop,
         //scrolling
         minScrollTop = dTop - 20,
         maxScrollTop = dBottom + 20 - vpHeight;
