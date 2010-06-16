@@ -3,7 +3,7 @@
 You can make screenshots, movies or write a manual for your web app .. OR go for on-page tutorials.
 
 On-Page tutorials, as the name suggests, live directly in your app. 
-A user klicks his way throught the web-application while reading your help bubbles 
+A user clicks his way through the web-application while reading your help bubbles 
 
 A KingTour can serve as:
 
@@ -11,7 +11,7 @@ A KingTour can serve as:
 * Help
 * Documentation with video and images
 * Show-case your app within a demo account
-* just about anything you can imagine, as long as its html
+* just about anything you can imagine, as long as it's html
 
 
 == Usage
@@ -33,25 +33,25 @@ See example here: http://salesking.github.com/king_tour/
 * tour bubble templates can now be set via Aj.template. If not set a default html snippet will be used
 * added more jQuery usage
 
-2010.17.05
+2010.05.17
 * added open/close callbacks 
 * added navigation keys: arrow upd/down, spacebar, quit
 * set tourStep in links for interpage tours(no more fromNext).
 * each tour step can now be referenced directly with an url
 
-2010.15.05
+2010.05.15
 * prevent inserting lazy loaded javascript/css twice into head => postFetch method
 * renamed setting mouseCanNavigate to mouseNav 
 * kicked lots of unneeded ;
 
 
-2010.14.05
+2010.05.14
 * jQuery-fied the whole thing, does not work without jQuery anymore
 * replaced some internal dom handling with jQuery
 * replaced "id"-selector for tour steps with a more general "el" selector now fully dependent on jQuery and its $()=>jQuery() selector
 
 
-2010.28.04
+2010.04.28
 * removed colorScheme
 * removed coverOpacity / coverColor => set in css
 * added var declarations in several places
