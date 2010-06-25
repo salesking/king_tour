@@ -219,10 +219,24 @@ KingTour = (function(){
       if (typeof KingTour.openCallback == 'function') { KingTour.openCallback(KingTour); }
       //append mouse click event to go to next dialog
       if (KingTour.mouseNav) {
-        jQuery('.kCover, #kExposeCover').live('click', function(){
-          KingTour.Dialog.next;
+        jQuery('.kCover, #kExposeCover').live('click', function() {
+          KingTour.Dialog.next();
         });
       }
+      //listen for prev/next/close events
+      jQuery('#kNext').live('click', function () {
+        KingTour.Dialog.next();
+        return false;
+      });
+      jQuery('#kPrev').live('click', function () {
+        KingTour.Dialog.prev();
+        return false;
+      });
+      jQuery('#kClose').live('click', function () {
+        KingTour.close();
+        return false;
+      });
+
     },
 
     onResize: function() {
@@ -246,7 +260,7 @@ KingTour = (function(){
       jQuery(KingTour.dialogBodySel).html(step.body);
       //set current step number
       jQuery('#kCurrentStep').text( KingTour.__currentStep + 1 );
-      KingTour.Expose.draw(step.el, step.padding, step.position);
+      KingTour.Expose.draw(step.el, step.padding);
       KingTour.Dialog.attachToExpose(step.pos);
       KingTour.Dialog.ensureVisibility();
     },
@@ -279,8 +293,7 @@ KingTour = (function(){
 })();
 
 /**
- * Amberjack Dialog class
- * @author Arash Yalpani
+ * Tour Dialog class
  */
 
 KingTour.Dialog = (function(){
@@ -290,6 +303,7 @@ KingTour.Dialog = (function(){
     var tpl_parsed = null,
         // use given or default template
         tpl_raw = KingTour.template ? KingTour.template : KingTour.Dialog.defaultTemplate;
+
     tpl_parsed = tpl_raw.replace(/{skinId}/, KingTour.skinId)
       .replace(/{textOf}/,        KingTour.textOf)
       .replace(/{textClose}/,     KingTour.textClose)
@@ -299,20 +313,6 @@ KingTour.Dialog = (function(){
       .replace(/{stepCount}/,     KingTour.__steps.length)
       .replace(/{body}/,          KingTour.__steps[KingTour.__currentStep].body);
     return tpl_parsed;
-  }
-
-  /**
-   * Set the coordinates of the dialog
-   */
-  function _setCoords(coords, position) {
-    var el = jQuery(KingTour.dialogSel);
-    el.css({
-      'position' : position || 'static',
-      'top' : coords.top || 'auto',
-      'right' : coords.right || 'auto',
-      'bottom' : coords.bottom || 'auto',
-      'left' :coords.left || 'auto'
-    });
   }
 
   /**
@@ -362,7 +362,7 @@ KingTour.Dialog = (function(){
         break;
       // right, left aligned dialog
       case 'r': case 'l':
-        if (dialogPos === 'r') { //
+        if (dialogPos === 'r') {
           arrow.addClass('arrow-lft'); //arrow pointing left <
           arrow_inner.addClass('arrow-inner-lft');
         } else{ // left >
@@ -494,7 +494,6 @@ KingTour.Dialog = (function(){
           dWidth  = KingToolz.getWidth(dialog),
           dHeight = KingToolz.getHeight(dialog),
           coords  = KingTour.Expose.getCoords(),
-          position  = KingTour.Expose.getPosition(),
           dialogPos = _pos.charAt(0),
           arrowPos    = _pos.charAt(1),
           dialogAlign = _pos.charAt(2),
@@ -585,7 +584,7 @@ KingTour.Dialog = (function(){
       _drawArrow(arrowSize, borderRadius, dHeight, dWidth, _pos);
       //set top/left positions for the dialog
       jQuery(dialog).css({
-        'position' : position || 'static',
+        'position' : 'absolute',
         'top' : dialogTop  + 'px',
         'left' : dialogLeft + 'px',
         'right' : 'auto',
@@ -594,10 +593,7 @@ KingTour.Dialog = (function(){
     },
 
     ensureVisibility: function() {
-      if ('fixed' == KingTour.__steps[KingTour.__currentStep].position) {
-        return ;
-      }
-
+      
       var dialog   = jQuery(KingTour.dialogSel)[0],
         dTop      = KingToolz.getTop(dialog),
         dHeight   = KingToolz.getHeight(dialog),
@@ -648,14 +644,14 @@ KingTour.Dialog = (function(){
     defaultTemplate: 
       '<div id="kDialog">' +
         '<div id="kDialogHead">' +
-          '<a id="kPrev" href="javascript:;" onclick="this.blur();KingTour.Dialog.prev();return false;"><span>{textPrev}</span></a>' +
+          '<a id="kPrev" href="#"><span>{textPrev}</span></a>' +
           '<span id="kCount"><span id="kCurrentStep">{currentStep}</span> {textOf} <span id="kStepCount">{stepCount}</span></span>' +
-          '<a id="kNext" href="javascript:;" onclick="this.blur();KingTour.Dialog.next();return false;"><span>{textNext}</span></a>' +
-          '<a id="kClose" href="javascript:;" onclick="KingTour.close();return false">{textClose}</a>' +
+          '<a id="kNext" href="#"><span>{textNext}</span></a>' +
+          '<a id="kClose" href="#">{textClose}</a>' +
         '</div>' +
         '<div id="kDialogBody">{body}</div>' +
         '<div class="arrow">' +
-        '<div class="arrow-inner"></div>' +
+          '<div class="arrow-inner"></div>' +
         '</div>'+
 
       '</div>'
@@ -667,8 +663,7 @@ KingTour.Dialog = (function(){
 KingTour.Expose = (function() {
   var _element  = null,  // jquery selector MUST return array of dom elements from which the first el is taken
   _padding      = 0,
-  _coords       = [],
-  _position     = null;
+  _coords       = [];
 
   /**
    * calculate coordinates for the help elements
@@ -690,11 +685,10 @@ KingTour.Expose = (function() {
     var cover = ( 0 === jQuery('#kCoverTop').length )
                 ? jQuery('<div id="kCoverTop" class="kCover"></div>').appendTo("body")
                 : jQuery('#kCoverTop');
-    var height = Math.max(0, _coords.t);
     cover.css({
-      'position' : _position,
+      'position' : 'absolute',
       'top' : '0px',
-      'height' : height + 'px'
+      'height' : Math.max(0, _coords.t) + 'px'
     });
   }
 
@@ -702,12 +696,10 @@ KingTour.Expose = (function() {
     var cover = ( 0 === jQuery('#kCoverBottom').length )
                 ? jQuery('<div id="kCoverBottom" class="kCover"></div>').appendTo("body")
                 : jQuery('#kCoverBottom');
-    var top = Math.max(0, _coords.b);
-    var height = (_position == 'fixed') 
-                  ? Math.max(0, KingToolz.viewport().height - top) + 'px'
-                  : (KingToolz.getWindowInnerHeight() - top) + 'px';
+    var top = Math.max(0, _coords.b),
+        height = document.documentElement.scrollHeight - top ;
     cover.css({
-      'position' : _position,
+      'position' : 'absolute',
       'top' : top + 'px',
       'height' : height + 'px'
     });
@@ -715,14 +707,13 @@ KingTour.Expose = (function() {
 
   function _drawLeft() {
     var cover = (jQuery('#kCoverLeft').length == 0)
-                  ? jQuery('<div id="kCoverLeft" class="kCover"></div>').appendTo("body")
-                  : jQuery('#kCoverLeft');
+                ? jQuery('<div id="kCoverLeft" class="kCover"></div>').appendTo("body")
+                : jQuery('#kCoverLeft');
 
-    var width = Math.max(0, _coords.l);
     cover.css({
-      'position' : _position,
+      'position' : 'absolute',
       'top' : _coords.t + 'px',
-      'width' : width + 'px',
+      'width' : Math.max(0, _coords.l) + 'px',
       'height' : _coords.h + 'px'
     });
   }
@@ -732,7 +723,7 @@ KingTour.Expose = (function() {
                  ? jQuery('<div id="kCoverRight" class="kCover"></div>').appendTo("body")
                  : jQuery('#kCoverRight');
     cover.css({
-      'position' : _position,
+      'position' : 'absolute',
       'top' : _coords.t + 'px',
       'left' : _coords.r + 'px',
       'height' : _coords.h + 'px'
@@ -744,7 +735,7 @@ KingTour.Expose = (function() {
                 ? jQuery('<div id="kExposeCover"></div>').appendTo("body")
                 : jQuery('#kExposeCover');
     cover.css({
-      'position' : _position,
+      'position' : 'absolute',
       'top' : _coords.t + 'px',
       'left' : _coords.l + 'px',
       'height' : _coords.h + 'px',
@@ -765,11 +756,10 @@ KingTour.Expose = (function() {
 
   // KingTour.Expose public class functions
   return {
-    draw: function(element, padding, position) {
+    draw: function(element, padding) {
       _element  = element;
       _padding  = padding;
       _coords   = _calcCoords();
-      _position = position || 'absolute';
       _drawCover();
     },
 
@@ -780,11 +770,7 @@ KingTour.Expose = (function() {
 
     getCoords: function() {
       return _coords;
-    },
-
-    getPosition: function() {
-      return _position;
-    }
+    }   
   }
 })();
 
@@ -920,14 +906,12 @@ KingToolz = {
    *
    * @param url The JavaScript/CSS file's url
    * @param type Either 'script' OR 'style'
-   * @param onerror Optional: callback handler if loading did not work
    *
    * @example loadScript('http://localhost/js/dummy.js', function(){alert('could not load')})
    *
    * Note that a HEAD tag needs to be existent in the current document and head
    * tags are only inserted once per url
    */
-
   postFetch: function(url, type) {
     var scriptOrStyle = null;
 
@@ -938,7 +922,7 @@ KingToolz = {
         scriptOrStyle.src  = url;
       }
     } else {
-      if ( 0 == jQuery('link[href='+ url +']').length ){
+      if ( 0 == jQuery('link[href='+ url +']').length ) {
         scriptOrStyle = document.createElement('link');
         scriptOrStyle.type = 'text/css';
         scriptOrStyle.rel  = 'stylesheet';
