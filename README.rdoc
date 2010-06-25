@@ -47,14 +47,14 @@ Setup KingTour with some custom options. For detailed options see http://github.
 Tour html definition and div title options:
 
   <div style="display: none;" id="defaultTour" class="kTour"> 
-    <!-- title element refering to the current page => url, with multiple 
-        tours ad divs on this level with own url -->
+    <!-- title element refering to the current page => url, 
+          with multiple tours add div's on this level with own url -->
     <div title="http://salesking.github.com/king_tour/"> 
-      <!-- tour step element options. Dont miss the " and ' for string options: 
+      <!-- tour step element options. Dont miss the ' around string options: 
           el => jQuery element selector
           padding => padding around the selected element
           pos => position of the bubble around the el
-          Add divs on this level for more steps -->
+          Add divs on this level for more steps. the options can be in any order -->
       <div title="el:'h1', padding:15, pos:'bcc'"> 
         <p>This is Tourstep one</p>        
       </div>     
@@ -63,7 +63,8 @@ Tour html definition and div title options:
 
 == Size
 
-17.2K compressed(stripped lf, comments)
+17.2K compressed(lf, comments)
+
 5.7K gziped 
 
 == Credits
