@@ -1,0 +1,47 @@
+= KingTour Changelog
+
+2010.06.25
+* fixed expose CoverBottom to cover whole document 
+* removed unused position switch(fixed/absolute) for expose cover and set position:abolute for all covers
+* some more documentation
+
+2010.06.15
+* new arrow's using css-triangles(borders) instead of css bg images - still work in progress
+* allow border for arrows in css
+
+2010.06.12
+* renamed to KingTour & adopted css
+* added options to set selectors for dialog popup & its content so custom html/css can be used in dialog template
+* renamed Aj.Control to Aj.Dialog
+* replaced table in help dialog with div's 
+* more jQuery usage
+
+2010.06.01
+* removed hardcoded bubble template from skins folder
+* tour bubble templates can now be set via Aj.template. If not set a default html snippet will be used
+* added more jQuery usage
+
+2010.05.17
+* added open/close callbacks 
+* added navigation keys: arrow upd/down, spacebar, quit
+* set tourStep in links for interpage tours(no more fromNext).
+* each tour step can now be referenced directly with an url
+
+2010.05.15
+* prevent inserting lazy loaded javascript/css twice into head => postFetch method
+* renamed setting mouseCanNavigate to mouseNav 
+* kicked lots of unneeded ;
+
+
+2010.05.14
+* jQuery-fied the whole thing, does not work without jQuery anymore
+* replaced some internal dom handling with jQuery
+* replaced "id"-selector for tour steps with a more general "el" selector now fully dependent on jQuery and its $()=>jQuery() selector
+
+
+2010.04.28
+* removed colorScheme
+* removed coverOpacity / coverColor => set in css
+* added var declarations in several places
+* added jQuery selector to be used in step title definition => jq_selector: '.aClass'
+* dropped firebug helper

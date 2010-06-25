@@ -1,8 +1,13 @@
 /**
+ * Credits:
+ * Georg Leciejewski: current development as KingTour => http://github.com/salesking/king_tour
+ * Arash Yalpani: originally developed the base of this with amberjack => http://amberjack2.org/
+ */
+/**
  * KingTours's main class
  */
 
-KingTour = (function(){
+KingTour = (function() {
 
   var _resetHash = {},
   _existingOnresize = null; // later used as reference to onresize method of window/document

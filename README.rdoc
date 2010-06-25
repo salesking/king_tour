@@ -18,50 +18,56 @@ A KingTour can serve as:
 
 See example here: http://salesking.github.com/king_tour/
 
+Look into the source and use firebug to get a grasp of it .. as long as the docs are sparse :-)
 
-== Changes
+=== Basics
 
-2010.06.12
-* renamed to KingTour & adopted css
-* added options to set selectors for dialog popup & its content so custom html/css can be used in dialog template
-* renamed Aj.Control to Aj.Dialog
-* replaced table in help dialog with div's 
-* more jQuery usage
+A tour is a div, identified by its id attribute. For each tour step the main tour wrapper contains divs with the real bubble content. The content can be any html.
 
-2010.06.01
-* removed hardcoded bubble template from skins folder
-* tour bubble templates can now be set via Aj.template. If not set a default html snippet will be used
-* added more jQuery usage
+The tour and its steps are configured inside the div's title element, with options interpreted by javascript.
 
-2010.05.17
-* added open/close callbacks 
-* added navigation keys: arrow upd/down, spacebar, quit
-* set tourStep in links for interpage tours(no more fromNext).
-* each tour step can now be referenced directly with an url
+=== Example
 
-2010.05.15
-* prevent inserting lazy loaded javascript/css twice into head => postFetch method
-* renamed setting mouseCanNavigate to mouseNav 
-* kicked lots of unneeded ;
+Setup KingTour with some custom options. For detailed options see http://github.com/salesking/king_tour/blob/master/king_tour.js#L141
 
+  KingTour.tourId = 'MyTourDivId';
+  //custom skin, located in skins folder
+  KingTour.skinId = 'salesking';
+  //whatever base you've got
+  KingTour.BASE_URL = '/javascripts/king_tour/';
+  //where to go on close
+  KingTour.closeUrl = '#';
+  //stay here when in multi-page tour
+  KingTour.onCloseClickStay = true;
+  //enable mouse click for prev/next .. actually pretty confusing
+  KingTour.mouseNav = true;
+  //go for it
+  KingTour.open();
 
-2010.05.14
-* jQuery-fied the whole thing, does not work without jQuery anymore
-* replaced some internal dom handling with jQuery
-* replaced "id"-selector for tour steps with a more general "el" selector now fully dependent on jQuery and its $()=>jQuery() selector
+Tour html definition and div title options:
 
+  <div style="display: none;" id="defaultTour" class="kTour"> 
+    <!-- title element refering to the current page => url, with multiple 
+        tours ad divs on this level with own url -->
+    <div title="http://salesking.github.com/king_tour/"> 
+      <!-- tour step element options. Dont miss the " and ' for string options: 
+          el => jQuery element selector
+          padding => padding around the selected element
+          pos => position of the bubble around the el
+          Add divs on this level for more steps -->
+      <div title="el:'h1', padding:15, pos:'bcc'"> 
+        <p>This is Tourstep one</p>        
+      </div>     
+    </div> 
+  </div>
 
-2010.04.28
-* removed colorScheme
-* removed coverOpacity / coverColor => set in css
-* added var declarations in several places
-* added jQuery selector to be used in step title definition => jq_selector: '.aClass'
-* dropped firebug helper
+== Size
 
+17.2K compressed(stripped lf, comments)
+5.7K gziped 
 
 == Credits
 
-This repo started with a clone of amberjack2 and got some fixes and enhancements during it's implementation at SalesKing.
-amberjack was originally developed by Arash Yalpani. 
-I would be glad to commit back to the origin if Arash puts up his sources on Github.
+This repo started with a clone of amberjack2 and was jQueryfied with lots of fixes and enhancements during it's implementation at SalesKing.
+amberjack was originally developed by Arash Yalpani. I would be glad to commit back to the origin if Arash puts up his sources on Github.
 
