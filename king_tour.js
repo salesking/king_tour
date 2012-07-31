@@ -21,7 +21,7 @@ KingTour = (function() {
       var e = e || window.event;
       e.cancelBubble = true;
       if (e.preventDefault) e.preventDefault(); //ie chokes here
-      if (e.stopPropagation) e.stopPropagation(); 
+      if (e.stopPropagation) e.stopPropagation();
 
       switch (e.keyCode) {
         case 35: // quit
@@ -345,9 +345,9 @@ KingTour.Dialog = (function(){
     switch (dialogPos) {
        //dialog on top / bottom
       case 't': case 'b':
-        if (dialogPos === 't'){ 
+        if (dialogPos === 't'){
           arrow.addClass('arrow-down');
-          arrow_inner.addClass('arrow-inner-down');         
+          arrow_inner.addClass('arrow-inner-down');
         } else{ // bottom
           arrow.addClass('arrow-up');
           arrow_inner.addClass('arrow-inner-up');
@@ -380,7 +380,7 @@ KingTour.Dialog = (function(){
             base_css['bottom'] =  borderRadius + 'px';
             break;
           case 'm': // middle
-            base_css['top'] = (dHeight/2 - arrowSize) + 'px';             
+            base_css['top'] = (dHeight/2 - arrowSize) + 'px';
             break;
           case 'b': // bottom
             base_css['top'] = borderRadius + 'px';
@@ -405,7 +405,7 @@ KingTour.Dialog = (function(){
       //insert dialog div bubble only once, else div already present just replace existing
       (dialog.length == 0 ) ? jQuery(tplHtml).appendTo("body")
                             : jQuery(KingTour.dialogSel).replaceWith(tplHtml);
-      
+
       // No URL was set AND no click-close-action was configured:
       if (!KingTour.closeUrl && !KingTour.onCloseClickStay) {
         jQuery('#kClose').hide();
@@ -428,7 +428,7 @@ KingTour.Dialog = (function(){
 
       KingTour.redrawEverything();
     },
-   
+
     prev: function() {
       if (KingTour.__currentStep == 0) {
         return ;
@@ -563,7 +563,7 @@ KingTour.Dialog = (function(){
         }
         if ( dialogAlign == 'c') { // tlc, blc
           dialogLeft = coords.l - dWidth / 2 + arrowSize;
-        }       
+        }
         break;
       case 'c': // center tcl, tcr, bcl , bcr
         var center = coords.l + coords.w/2; //left val of expose - half exposed width
@@ -598,7 +598,7 @@ KingTour.Dialog = (function(){
     },
 
     ensureVisibility: function() {
-      
+
       var dialog   = jQuery(KingTour.dialogSel)[0],
         dTop      = KingToolz.getTop(dialog),
         dHeight   = KingToolz.getHeight(dialog),
@@ -624,10 +624,10 @@ KingTour.Dialog = (function(){
         return ;
       }
 
-      var scrollTo = (dBottom == superBottom) 
+      var scrollTo = (dBottom == superBottom)
                       ? superBottom - vpHeight + 2 /* pos = b */
                       : superTop - 20;
-    
+
       window.scroll(0, Math.max(maxScrollTop, Math.min(minScrollTop, scrollTo)));
     },
 
@@ -646,7 +646,7 @@ KingTour.Dialog = (function(){
      * KingTour.open();
      * Just make sure your html contains the right id's so the tour content can be set
      **/
-    defaultTemplate: 
+    defaultTemplate:
       '<div id="kDialog">' +
         '<div id="kDialogHead">' +
           '<a id="kPrev" href="#"><span>{textPrev}</span></a>' +
@@ -660,7 +660,7 @@ KingTour.Dialog = (function(){
         '</div>'+
 
       '</div>'
-    
+
   };
 })();
 
@@ -775,7 +775,7 @@ KingTour.Expose = (function() {
 
     getCoords: function() {
       return _coords;
-    }   
+    }
   }
 })();
 
@@ -864,7 +864,7 @@ KingToolz = {
     } else { // Explorer Mac...would also work in Mozilla and Safari
       inner = db.offsetHeight;
     }
-   
+
     if (self.innerHeight) { // all except Explorer
       height = self.innerHeight;
     } else if (dde && dde.clientHeight) { // Explorer 6 Strict Mode
@@ -921,13 +921,13 @@ KingToolz = {
     var scriptOrStyle = null;
 
     if (type === 'script') {
-      if ( 0 == jQuery('script[src='+ url +']').length ){
+      if ( 0 == jQuery('script[src="'+ url +'"]').length ){
         scriptOrStyle = document.createElement('script');
         scriptOrStyle.type = 'text/javascript';
         scriptOrStyle.src  = url;
       }
     } else {
-      if ( 0 == jQuery('link[href='+ url +']').length ) {
+      if ( 0 == jQuery('link[href="'+ url +']"').length ) {
         scriptOrStyle = document.createElement('link');
         scriptOrStyle.type = 'text/css';
         scriptOrStyle.rel  = 'stylesheet';
