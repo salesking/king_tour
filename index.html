@@ -4,10 +4,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script> 
-  <!-- JQuery --> 
+  <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+  <!-- JQuery -->
 	<title>On-Page Tutorials by SalesKing </title>
-	
+
 	<style type="text/css">
 		body {margin-top: 1.0em;font 12px/1.34em Arial,Helvetica,sans-serif; color: #696969;}
     #container { margin: 0 auto; width: 700px; }
@@ -25,7 +25,7 @@
     .footer { text-align:center; padding-top:30px; font-style: italic; }
     ul.box{ width: 600px; margin: 20px 0; clear: right; height: 250px; padding:0;}
     .box li {width: 120px; height: 120px; border: 2px solid #ccc; margin: 10px; float:left; list-style:none; padding: 20px}
-    
+
     /* dialog styles*/
     #kDialog{ font-size: 1em !important;}
     #kDialog p{ margin: 0 !important}
@@ -69,13 +69,13 @@
     Click the following tours to give it a shot!
     <ul class='box'>
       <li class="starter">
-        <a  href="javascript:;" onclick="KingTour.onCloseClickStay = true; KingTour.tourId = 'defaultTour';KingTour.open();">Quick intro</a> 
+        <a  href="javascript:;" onclick="KingTour.onCloseClickStay = true; KingTour.tourId = 'defaultTour';KingTour.open();">Quick intro</a>
       </li>
       <li id="pos_tour_link">
-        <a href="javascript:;" onclick="KingTour.onCloseClickStay = true; KingTour.tourId = 'posTour';KingTour.open();">Dialog positioning</a> 
+        <a href="javascript:;" onclick="KingTour.onCloseClickStay = true; KingTour.tourId = 'posTour';KingTour.open();">Dialog positioning</a>
       </li>
     </ul>
-   
+
     <h2>Dependencies</h2>
     <p>jQuery</p>
     <h2>Authors</h2>
@@ -103,34 +103,34 @@
     </div>
 
   </div>
-  
-<!-- On-page Tour Definition --> 
-<div class="kTour" id="defaultTour" style="display:none" title="http://salesking.github.com/king_tour/"> 
-  <div title="http://salesking.github.com/king_tour/"> 
-    <div title="el:'h1',padding:15,pos:'bcc'"> 
-      <p class="title">This is an example On-Page Tour</p> 
+
+<!-- On-page Tour Definition -->
+<div class="kTour" id="defaultTour" style="display:none" title="http://salesking.github.com/king_tour/">
+  <div title="http://salesking.github.com/king_tour/">
+    <div title="el:'h1',padding:15,pos:'bcc'">
+      <p class="title">This is an example On-Page Tour</p>
       <p> Navigate with space/backspace, keyboard right/left, mouse click left/right or by using the arrows inside the bubble</p>
       <p> Quit with ESC or the X in the bubble</p>
-    </div> 
-    <div title="el:'.download',padding:5,pos:'brl'"> 
-      <p class="title">Download the source</p> 
+    </div>
+    <div title="el:'.download',padding:5,pos:'brl'">
+      <p class="title">Download the source</p>
       <p> Those two buttons allow downloading the project as zip or tar file</p>
-    </div> 
-    <div title="el:'.fork_badge',padding:2,pos:'lmb'"> 
+    </div>
+    <div title="el:'.fork_badge',padding:2,pos:'lmb'">
       <p class="title">Fork me here</p>
-    </div> 
-    <div title="el:'.starter',padding:2,pos:'rmb'"> 
+    </div>
+    <div title="el:'.starter',padding:2,pos:'rmb'">
       <p >You just started the tour here</p>
-    </div> 
-    <div title="el:'.author',padding:2,pos:'rmb'"> 
+    </div>
+    <div title="el:'.author',padding:2,pos:'rmb'">
       <p >It wasn't just me, my enhancements are based on Arash Yalpani's work on amberjack .. i did the jQuery-fication </p>
       <p >Thanks, Arash for your work!</p>
-    </div> 
-    <div title="el:'pre',padding:5,pos:'tcc'"> 
+    </div>
+    <div title="el:'pre',padding:5,pos:'tcc'">
       <p class="title">This is the command to clone the project, if you are familiar with git</p>
     </div>
-  </div> 
-</div> 
+  </div>
+</div>
 
 <div style="display: none;" id="posTour" class="kTour">
   <div title="http://salesking.github.com/king_tour/">
@@ -263,11 +263,11 @@
     </div>
   </div>
 </div>
-<!-- king_tour Bootstrap --> 
-<script type="text/javascript" src="https://github.com/salesking/king_tour/raw/master/king_tour.js"></script> 
+<!-- king_tour Bootstrap -->
+<script type="text/javascript" src="https://github.com/salesking/king_tour/raw/master/king_tour.js"></script>
 <script type="text/javascript">
-    KingTour.BASE_URL = 'https://raw.github.com/salesking/king_tour/master/';
-</script> 
+    KingTour.BASE_URL = 'http://salesking.github.com/king_tour/';
+</script>
 
 </body>
 </html>
