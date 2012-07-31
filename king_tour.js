@@ -927,7 +927,7 @@ KingToolz = {
         scriptOrStyle.src  = url;
       }
     } else {
-      if ( 0 == jQuery('link[href="'+ url +']"').length ) {
+      if ( 0 == jQuery('link[href="'+ url +'"]').length ) {
         scriptOrStyle = document.createElement('link');
         scriptOrStyle.type = 'text/css';
         scriptOrStyle.rel  = 'stylesheet';
